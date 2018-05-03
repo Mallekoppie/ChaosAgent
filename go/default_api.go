@@ -50,7 +50,23 @@ func AddTests(w http.ResponseWriter, r *http.Request) {
 
 func GetTestStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	status := CoreGetTestStatus()
+
+	data, marshalErr := json.Marshal(status)
+
+	if marshalErr != nil {
+		log.Fatalln("Unable to marshal response", marshalErr)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
 	w.WriteHeader(http.StatusOK)
+	_, err := w.Write(data)
+
+	if err != nil {
+		log.Fatalln("Error writing response stream:", err)
+		return
+	}
 }
 
 func IsAlive(w http.ResponseWriter, r *http.Request) {

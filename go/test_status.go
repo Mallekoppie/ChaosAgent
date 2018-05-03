@@ -23,7 +23,7 @@ type TestStatus struct {
 	ExecutionTime int32 `json:"executionTime,omitempty"`
 
 	// CPU usage on the host that the agent is running on
-	Cpu int32 `json:"cpu,omitempty"`
+	Cpu float64 `json:"cpu,omitempty"`
 
 	// The number of users being simulated
 	SimulatedUsers int32 `json:"simulatedUsers,omitempty"`

@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := swagger.TestCollection{Name: "test"}
+	config := TestCollection{Name: "test"}
 	WriteTestConfiguration(config)
 }
 
@@ -24,6 +24,6 @@ func TestReadConfig(t *testing.T) {
 }
 
 func TestWriteConfig(t *testing.T) {
-	config := swagger.TestCollection{Name: "test"}
+	config := TestCollection{Name: "test"}
 	WriteTestConfiguration(config)
 }
