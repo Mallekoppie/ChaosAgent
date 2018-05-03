@@ -10,11 +10,41 @@
 package swagger
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 )
 
 func AddTests(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	if r.Method != http.MethodPut {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		log.Println("Invalid method used:", r.Method)
+		return
+	}
+
+	config := TestCollection{}
+	data, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+
+	if err != nil {
+		log.Println("Error reading body:", err)
+
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	marshallError := json.Unmarshal(data, &config)
+
+	if marshallError != nil {
+		log.Println("Unable to unmarshall body:", marshallError)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	WriteTestConfiguration(config)
+
 	w.WriteHeader(http.StatusOK)
 }
 
