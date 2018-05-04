@@ -1,10 +1,12 @@
 package util
 
 import (
-	"log"
+	//	"log"
 	"net/http"
 	"testing"
 	//"time"
+	json "encoding/json"
+	io "io/ioutil"
 )
 
 /*
@@ -27,6 +29,7 @@ type Route struct {
 
 var (
 	HeaderTestChan chan bool
+	BodyTestChan   chan bool
 	Routes         map[int]Route
 	srv            http.Server
 )
@@ -37,16 +40,13 @@ const (
 
 func init() {
 	HeaderTestChan = make(chan bool, 10)
+	BodyTestChan = make(chan bool, 10)
 	Routes = make(map[int]Route)
 	srv = http.Server{Addr: ":9999"}
 	Routes[0] = Route{Pattern: "/TestHttpCallForBasicGet", HandlerFunc: func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		log.Println("Request received")
 	}}
 	Routes[1] = Route{Pattern: "/TestHttpCallForToSendHeaders", HandlerFunc: func(w http.ResponseWriter, r *http.Request) {
-
-		log.Println("HeaderTestRequest received")
-
 		first := false
 		second := false
 		for header := range r.Header {
@@ -69,12 +69,60 @@ func init() {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		log.Println("Handler Done")
+	}}
+	Routes[2] = Route{Pattern: "/TestHttpCallWithBodyAndPostMethod", HandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		data, _ := io.ReadAll(r.Body)
+		defer r.Body.Close()
+
+		if len(data) < 1 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		testBody := TestRequestForBodyTest{}
+
+		marshalErr := json.Unmarshal(data, &testBody)
+
+		if marshalErr != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		if testBody.Name == "test" {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	}}
 
+	go MakeLittleServerToCall()
 }
 
-func MakeLittleServerToCall(t *testing.T) {
+type TestRequestForBodyTest struct {
+	Name    string
+	Surname string
+}
+
+func TestHttpCallWithBodyAndPostMethod(t *testing.T) {
+	headers := make(map[string]string)
+	testBody := TestRequestForBodyTest{}
+	testBody.Name = "test"
+	data, _ := json.Marshal(testBody)
+
+	responseCode, _, _ := MakeHttpCall(BasePath+"/TestHttpCallWithBodyAndPostMethod", http.MethodPost, headers, string(data))
+
+	if responseCode != http.StatusOK {
+		t.Log("Incorrect response code received")
+		t.Fail()
+	}
+}
+
+func MakeLittleServerToCall() {
 
 	myMux := http.NewServeMux()
 
@@ -88,7 +136,6 @@ func MakeLittleServerToCall(t *testing.T) {
 }
 
 func TestHttpCallForBasicGet(t *testing.T) {
-	go MakeLittleServerToCall(t)
 
 	headers := make(map[string]string)
 	responseCode, _, _ := MakeHttpCall(BasePath+"/TestHttpCallForBasicGet", http.MethodGet, headers, "")
@@ -102,7 +149,6 @@ func TestHttpCallForBasicGet(t *testing.T) {
 }
 
 func TestHttpCallForToSendHeaders(t *testing.T) {
-	go MakeLittleServerToCall(t)
 
 	headers := make(map[string]string)
 	headers["first"] = "value"
@@ -138,6 +184,8 @@ func TestExternalTest(t *testing.T) {
 	}
 }
 */
+
+// This is done so that the server gracefully shuts down
 func TestKillServer(t *testing.T) {
 	srv.Close()
 }
