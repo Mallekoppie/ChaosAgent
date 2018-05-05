@@ -100,7 +100,40 @@ func init() {
 		}
 	}}
 
+	Routes[3] = Route{Pattern: "/TestGetBody", HandlerFunc: func(w http.ResponseWriter, r *http.Request) {
+
+		testBody := TestRequestForBodyTest{}
+		testBody.Name = "test"
+
+		data, _ := json.Marshal(testBody)
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(data)
+
+	}}
+
 	go MakeLittleServerToCall()
+}
+
+func TestGetBody(t *testing.T) {
+	headers := make(map[string]string)
+
+	responseCode, responseBody, _ := MakeHttpCall(BasePath+"/TestGetBody", http.MethodPost, headers, "")
+
+	if responseCode != http.StatusOK {
+		t.Log("Incorrect response code received")
+		t.Fail()
+	}
+
+	testBody := TestRequestForBodyTest{}
+
+	json.Unmarshal([]byte(responseBody), &testBody)
+
+	if testBody.Name != "test" {
+		t.Log("Body data not correct")
+		t.Fail()
+	}
+
 }
 
 type TestRequestForBodyTest struct {
