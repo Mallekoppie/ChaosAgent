@@ -10,7 +10,6 @@
 package swagger
 
 type Test struct {
-
 	Name string `json:"name"`
 
 	Method string `json:"method"`
@@ -22,7 +21,7 @@ type Test struct {
 	Headers []Header `json:"headers,omitempty"`
 
 	// The expected HTTP Status code that is returned
-	ResponseCode int32 `json:"responseCode"`
+	ResponseCode int `json:"responseCode"`
 
 	// The expected body. This probably won't work so well
 	ResponseBody string `json:"responseBody,omitempty"`
