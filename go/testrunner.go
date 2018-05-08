@@ -1,6 +1,7 @@
 package swagger
 
 import (
+	"errors"
 	util "mallekoppie/ChaosAgent/util"
 )
 
@@ -11,11 +12,11 @@ var (
 	TransactionsPerSecond int32
 	TestCollectionName    string
 	IsTestRunning         bool
-	RunningSimulatedUsers map[int]bool
+	RunningSimulatedUsers map[int32]bool
 )
 
 func init() {
-	RunningSimulatedUsers = make(map[int]bool)
+	RunningSimulatedUsers = make(map[int32]bool)
 }
 
 func CoreGetTestStatus() TestStatus {
@@ -31,7 +32,23 @@ func CoreGetTestStatus() TestStatus {
 	return testStatus
 }
 
+func CoreStopTest() {
+	if IsTestRunning == true {
+		IsTestRunning = false
+
+		for SimulatedUsers > 0 {
+			RunningSimulatedUsers[SimulatedUsers] = false
+
+			SimulatedUsers--
+		}
+	}
+}
+
 func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
+
+	if IsTestRunning == true {
+		return IsTestRunning, errors.New("Test is already running")
+	}
 
 	testCollection, configError := ReadTestConfiguration(testName)
 
@@ -41,17 +58,21 @@ func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
 	}
 
 	IsTestRunning = true
-
-	go RunTest(testCollection)
+	SimulatedUsers = 0
+	for i := 0; i < simulatedUsersInput; i++ {
+		RunningSimulatedUsers[SimulatedUsers] = true
+		go RunTest(testCollection, SimulatedUsers)
+		SimulatedUsers++
+	}
 
 	return IsTestRunning, nil
 }
 
-func RunTest(config TestCollection) {
+func RunTest(config TestCollection, index int32) {
 
-	for IsTestRunning == true {
+	for RunningSimulatedUsers[index] == true {
 		for testIndex := range config.Tests {
-			if IsTestRunning == false {
+			if RunningSimulatedUsers[index] == false {
 				break
 			}
 
@@ -77,8 +98,6 @@ func RunTest(config TestCollection) {
 			if responseBody != item.ResponseBody {
 				// log error and change statistics
 			}
-
 		}
 	}
-
 }
