@@ -65,9 +65,9 @@ func init() {
 }
 
 func TestTestRunnerFirstBasic(t *testing.T) {
-	CoreRunTest("TestRunnerFirst", 20)
+	CoreRunTest("TestRunnerFirst", 1)
 
-	time.Sleep(time.Second * 20)
+	time.Sleep(time.Second * 5)
 
 	CoreStopTest()
 

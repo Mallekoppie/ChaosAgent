@@ -34,13 +34,14 @@ func CoreGetTestStatus() TestStatus {
 
 func CoreStopTest() {
 	if IsTestRunning == true {
-		IsTestRunning = false
 
 		for SimulatedUsers > 0 {
 			RunningSimulatedUsers[SimulatedUsers] = false
 
 			SimulatedUsers--
 		}
+
+		IsTestRunning = false
 	}
 }
 

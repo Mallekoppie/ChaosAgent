@@ -1,6 +1,7 @@
 package swagger
 
 import (
+	base64 "encoding/base64"
 	json "encoding/json"
 	io "io/ioutil"
 	"log"
@@ -29,6 +30,8 @@ func WriteTestConfiguration(config TestCollection) error {
 	return nil
 }
 
+// The body of the requests for each test must be base64 encoded.
+// We don't do anything when writing but when reading we must decode it
 func ReadTestConfiguration(name string) (TestCollection, error) {
 	configuration := TestCollection{}
 	err := gonfig.GetConf(name+".json", &configuration)
@@ -36,6 +39,19 @@ func ReadTestConfiguration(name string) (TestCollection, error) {
 	if err != nil {
 		log.Print("Error reading config: %v", err)
 		return configuration, err
+	}
+
+	//Decode bodies
+	for i := 0; i < len(configuration.Tests); i++ {
+		if len(configuration.Tests[i].Body) > 0 {
+			data, err := base64.StdEncoding.DecodeString(configuration.Tests[i].Body)
+
+			if err != nil {
+				log.Println("Error base64 decoding request body: ", err)
+			}
+
+			configuration.Tests[i].Body = string(data)
+		}
 	}
 
 	return configuration, nil
