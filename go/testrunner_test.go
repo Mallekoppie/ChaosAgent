@@ -75,6 +75,26 @@ func TestTestRunnerFirstBasic(t *testing.T) {
 
 }
 
+func TestTestRunnerGetTPS(t *testing.T) {
+	CoreRunTest("TestRunnerFirst", 1)
+
+	time.Sleep(time.Second * 1)
+
+	// Get stats
+
+	time.Sleep(time.Second * 1)
+
+	// Get Stats
+
+	time.Sleep(time.Second * 1)
+
+	// Get Stats
+
+	CoreStopTest()
+
+	t.Log("Tests completed: ", TestCount)
+}
+
 func TestKillServer(t *testing.T) {
 	srv.Close()
 }
