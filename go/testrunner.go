@@ -84,6 +84,30 @@ func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
 	return IsTestRunning, nil
 }
 
+func CoreUpdateTest(simulatedUsersInput int32) error {
+	if IsTestRunning == false {
+		return errors.New("No Test is running")
+	}
+
+	if simulatedUsersInput < SimulatedUsers-1 {
+		return nil
+	}
+
+	testCollection, configError := ReadTestConfiguration(TestCollectionName)
+
+	if configError != nil {
+		return errors.New("Could not retrieve test config")
+	}
+
+	for SimulatedUsers < simulatedUsersInput {
+		RunningSimulatedUsers[SimulatedUsers] = true
+		go RunTest(testCollection, SimulatedUsers)
+		SimulatedUsers++
+	}
+
+	return nil
+}
+
 func MonitorAndUpdateStatistics() {
 	for IsTestRunning == true {
 		testStats := <-TestStatisticsChan

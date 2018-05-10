@@ -75,16 +75,77 @@ func IsAlive(w http.ResponseWriter, r *http.Request) {
 }
 
 func StartTestRun(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		log.Println("Invalid method used:", r.Method)
+		return
+	}
+
+	params := TestParameters{}
+	data, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println("Unable to read request body: ", err)
+	}
+
+	marshalErr := json.Unmarshal(data, &params)
+
+	if marshalErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println("Unable to unmarshal request body: ", marshalErr)
+	}
+
+	started, startErr := CoreRunTest(params.TestCollectionName, int(params.SimulatedUsers))
+
+	if startErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Unable to start test run: ", startErr)
+		w.Write([]byte(startErr.Error()))
+
+		return
+	}
+
+	if started == true {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusConflict)
+	}
+
 }
 
 func StopTestRun(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	if r.Method != http.MethodDelete {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		log.Println("Invalid method used:", r.Method)
+		return
+	}
+
+	CoreStopTest()
+
+	log.Println("Test stopping")
 }
 
 func UpdateTestRun(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		log.Println("Invalid method used:", r.Method)
+		return
+	}
+
+	params := TestParameters{}
+	data, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println("Unable to read request body: ", err)
+	}
+
+	marshalErr := json.Unmarshal(data, &params)
+
+	if marshalErr != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println("Unable to unmarshal request body: ", marshalErr)
+	}
 }
