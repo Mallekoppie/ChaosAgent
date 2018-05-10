@@ -15,12 +15,15 @@ type TestStatus struct {
 	TestCollectionName string `json:"testCollectionName,omitempty"`
 
 	// The total requests sent to the remote API
-	RequestsExecuted int32 `json:"requestsExecuted,omitempty"`
+	RequestsExecuted int64 `json:"requestsExecuted,omitempty"`
 
-	TransactionsPerSecond int32 `json:"transactionsPerSecond,omitempty"`
+	TransactionsPerSecond int64 `json:"transactionsPerSecond,omitempty"`
 
 	// Execution time in seconds
-	ExecutionTime int32 `json:"executionTime,omitempty"`
+	ExecutionTime int64 `json:"executionTime,omitempty"`
+
+	// Execution time in milliseconds
+	AverageExecutionTime int64 `json:"averageExecutionTime,omitempty"`
 
 	// CPU usage on the host that the agent is running on
 	Cpu float64 `json:"cpu,omitempty"`

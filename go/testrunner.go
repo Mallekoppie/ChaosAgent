@@ -3,30 +3,41 @@ package swagger
 import (
 	"errors"
 	util "mallekoppie/ChaosAgent/util"
+	"time"
 )
 
 var (
-	ExecutionTime         int32
-	RequestsExecuted      int32
-	SimulatedUsers        int32
-	TransactionsPerSecond int32
-	TestCollectionName    string
-	IsTestRunning         bool
-	RunningSimulatedUsers map[int32]bool
+	ExecutionTimeNanosecond int64
+	RequestsExecuted        int64
+	SimulatedUsers          int32
+	ErrorCount              int32
+	TestCollectionName      string
+	IsTestRunning           bool
+	RunningSimulatedUsers   map[int32]bool
+	SampleIntervalSecond    int32 = 10
+	TestStatisticsChan      chan TestStatistics
 )
 
 func init() {
 	RunningSimulatedUsers = make(map[int32]bool)
+	TestStatisticsChan = make(chan TestStatistics, 1000)
+}
+
+type TestStatistics struct {
+	RequestsExecuted             int64
+	TotalExecutionTimeNanosecond int64
+	ErrorCount                   int32
 }
 
 func CoreGetTestStatus() TestStatus {
 	testStatus := TestStatus{}
 
-	testStatus.Cpu = util.GetCPUStatus()
-	testStatus.ExecutionTime = ExecutionTime
+	//testStatus.Cpu = util.GetCPUStatus() //Slow
+	testStatus.ExecutionTime = ExecutionTimeNanosecond / 1000000000
 	testStatus.RequestsExecuted = RequestsExecuted
 	testStatus.SimulatedUsers = SimulatedUsers
-	testStatus.TransactionsPerSecond = TransactionsPerSecond
+	testStatus.AverageExecutionTime = ExecutionTimeNanosecond / RequestsExecuted / 1000000
+	testStatus.TransactionsPerSecond = RequestsExecuted / testStatus.ExecutionTime
 	testStatus.TestCollectionName = TestCollectionName
 
 	return testStatus
@@ -60,6 +71,10 @@ func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
 
 	IsTestRunning = true
 	SimulatedUsers = 0
+	ExecutionTimeNanosecond = 0
+	RequestsExecuted = 0
+	ErrorCount = 0
+	go MonitorAndUpdateStatistics()
 	for i := 0; i < simulatedUsersInput; i++ {
 		RunningSimulatedUsers[SimulatedUsers] = true
 		go RunTest(testCollection, SimulatedUsers)
@@ -69,10 +84,23 @@ func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
 	return IsTestRunning, nil
 }
 
+func MonitorAndUpdateStatistics() {
+	for IsTestRunning == true {
+		testStats := <-TestStatisticsChan
+
+		RequestsExecuted = RequestsExecuted + testStats.RequestsExecuted
+		ExecutionTimeNanosecond = ExecutionTimeNanosecond + testStats.TotalExecutionTimeNanosecond
+
+	}
+}
+
 func RunTest(config TestCollection, index int32) {
 
 	for RunningSimulatedUsers[index] == true {
+
 		for testIndex := range config.Tests {
+			var testErrors int32
+			var testTimeNanosecond, testsCompleted int64
 			if RunningSimulatedUsers[index] == false {
 				break
 			}
@@ -86,19 +114,23 @@ func RunTest(config TestCollection, index int32) {
 				}
 			}
 
+			startTime := time.Now()
 			responseCode, responseBody, err := util.MakeHttpCall(item.Url, item.Method, headers, item.Body)
+			result := time.Since(startTime)
+			testTimeNanosecond = result.Nanoseconds()
+			testsCompleted++
 
-			if err != nil {
-				// log error and change statistics
+			if err != nil || responseCode != item.ResponseCode || responseBody != item.ResponseBody {
+				testErrors++
 			}
 
-			if responseCode != item.ResponseCode {
-				// log error and change statistics
+			testStats := TestStatistics{
+				RequestsExecuted:             testsCompleted,
+				TotalExecutionTimeNanosecond: testTimeNanosecond,
+				ErrorCount:                   testErrors,
 			}
 
-			if responseBody != item.ResponseBody {
-				// log error and change statistics
-			}
+			TestStatisticsChan <- testStats
 		}
 	}
 }

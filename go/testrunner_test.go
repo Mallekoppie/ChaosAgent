@@ -59,6 +59,7 @@ func init() {
 
 		w.WriteHeader(http.StatusOK)
 		TestCount++
+		time.Sleep(time.Millisecond * 200)
 	}}
 
 	go MakeLittleServerToCall()
@@ -67,31 +68,24 @@ func init() {
 func TestTestRunnerFirstBasic(t *testing.T) {
 	CoreRunTest("TestRunnerFirst", 1)
 
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 2)
 
 	CoreStopTest()
 
-	t.Log("Tests completed: ", TestCount)
+	//t.Log("Tests completed: ", TestCount)
 
 }
 
 func TestTestRunnerGetTPS(t *testing.T) {
+	t.Log("Tests completed: ", TestCount)
 	CoreRunTest("TestRunnerFirst", 1)
 
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 11)
 
-	// Get stats
-
-	time.Sleep(time.Second * 1)
-
-	// Get Stats
-
-	time.Sleep(time.Second * 1)
-
-	// Get Stats
+	status := CoreGetTestStatus()
+	t.Logf("AverageExecutionTime: \t %v, ExecutionTime: \t %v, RequestsExecuted: \t %v, SimulatedUsers: \t %v, TransactionsPerSecond: \t %v", status.AverageExecutionTime, status.ExecutionTime, status.RequestsExecuted, status.SimulatedUsers, status.TransactionsPerSecond)
 
 	CoreStopTest()
-
 	t.Log("Tests completed: ", TestCount)
 }
 
