@@ -33,7 +33,7 @@ type TestStatistics struct {
 func CoreGetTestStatus() TestStatus {
 	testStatus := TestStatus{}
 
-	//testStatus.Cpu = util.GetCPUStatus() //Slow
+	testStatus.Cpu = util.GetCPUStatus() //Slow
 	if ExecutionTimeNanosecond > 0 {
 		testStatus.ExecutionTime = ExecutionTimeNanosecond / 1000000000
 	}

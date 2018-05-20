@@ -225,7 +225,7 @@ func OptionAgentStatusAll() {
 			//fmt.Printf("Error getting status for agent %v . Error: %v \n", Config.Agents[i].Name, err)
 			fmt.Printf("Agent %v is offline\n", Config.Agents[i].Name)
 		} else {
-			fmt.Printf("Agent %v : Test: %v \tTPS: %v \tUsers: %v \tTR: %v \tExecutionTime: %v \tCPU: %v  \n", Config.Agents[i].Name, status.TestCollectionName, status.TransactionsPerSecond, status.SimulatedUsers, status.RequestsExecuted, status.AverageExecutionTime, status.Cpu)
+			fmt.Printf("Agent %v Test: %v \tTPS: %v \tUsers: %v \tTR: %v \tExecutionTime: %v \tCPU: %v  \n", Config.Agents[i].Name, status.TestCollectionName, status.TransactionsPerSecond, status.SimulatedUsers, status.RequestsExecuted, status.AverageExecutionTime, status.Cpu)
 		}
 	}
 }
