@@ -89,6 +89,7 @@ func RunUI() {
 		case "ua":
 			OptionUpdateTestParametersForAllAgents()
 		case "u":
+			OptionUpdateTestParametersForOneAgent()
 		case "deploy":
 			OptionDeployTestToAllAgents()
 		case "d":
@@ -101,6 +102,40 @@ func RunUI() {
 			Prnt("Command not supported")
 		}
 
+	}
+}
+
+func OptionUpdateTestParametersForOneAgent() {
+
+	OptionClearOutput()
+	fmt.Println("Enter the Chaos Agent to update:")
+	for i := 0; i < len(Config.Agents); i++ {
+		fmt.Println(Config.Agents[i].Name)
+	}
+
+	reader.Scan()
+	agentName := reader.Text()
+
+	fmt.Println("Enter the number of users to simulate:")
+	reader.Scan()
+	numberOfUsers := reader.Text()
+
+	numberOfUsersInt, convertErr := strconv.Atoi(numberOfUsers)
+
+	if convertErr != nil {
+		fmt.Println("Error converting your option to int32:", convertErr)
+		return
+	}
+
+	test := swagger.TestParameters{SimulatedUsers: int32(numberOfUsersInt)}
+
+	for i := 0; i < len(Config.Agents); i++ {
+
+		if Config.Agents[i].Name == agentName {
+			Config.Agents[i].UpdateTest(test)
+
+			fmt.Printf("Agent %v test pushed \n", Config.Agents[i].Name)
+		}
 	}
 }
 
@@ -187,7 +222,8 @@ func OptionAgentStatusAll() {
 		status, err := Config.Agents[i].GetStatus()
 
 		if err != nil {
-			fmt.Printf("Error getting status for agent %v . Error: %v \n", Config.Agents[i].Name, err)
+			//fmt.Printf("Error getting status for agent %v . Error: %v \n", Config.Agents[i].Name, err)
+			fmt.Printf("Agent %v is offline\n", Config.Agents[i].Name)
 		} else {
 			fmt.Printf("Agent %v : Test: %v \tTPS: %v \tUsers: %v \tTR: %v \tExecutionTime: %v \tCPU: %v  \n", Config.Agents[i].Name, status.TestCollectionName, status.TransactionsPerSecond, status.SimulatedUsers, status.RequestsExecuted, status.AverageExecutionTime, status.Cpu)
 		}
@@ -209,13 +245,18 @@ func OptionDisplayConfigration() {
 }
 
 func OptionStopOne() {
-	agentFound := false
-	var name string
-	for len(name) < 1 {
-		fmt.Println("Enter the name of the agent you want to stop: ")
-		reader.Scan()
-		name = reader.Text()
+
+	OptionClearOutput()
+	fmt.Println("Enter the Chaos Agent to update:")
+	for i := 0; i < len(Config.Agents); i++ {
+		fmt.Println(Config.Agents[i].Name)
 	}
+
+	reader.Scan()
+	name := reader.Text()
+
+	agentFound := false
+
 	for i := 0; i < len(Config.Agents); i++ {
 		if Config.Agents[i].Name == name {
 			fmt.Println("Stopping test for Agent: " + Config.Agents[i].Name)

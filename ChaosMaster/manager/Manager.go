@@ -56,7 +56,7 @@ func (c *ChaosAgent) GetStatus() (swagger.TestStatus, error) {
 	status, _, err := c.Client.DefaultApi.GetTestStatus(c.Ctx)
 
 	if err != nil {
-		fmt.Println("Error calling service: ", err)
+		//fmt.Println("Error calling service: ", err)
 		return status, err
 	} else {
 		return status, nil
@@ -68,7 +68,7 @@ func (c *ChaosAgent) IsAlive() bool {
 	resp, err := c.Client.DefaultApi.IsAlive(c.Ctx)
 
 	if err != nil {
-		fmt.Printf("Error checking if %v is alive. Error: %v", c.Name, err)
+		//fmt.Printf("Error checking if %v is alive. Error: %v", c.Name, err)
 		return false
 	} else if resp.StatusCode == 200 {
 		return true
