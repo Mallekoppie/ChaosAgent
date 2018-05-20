@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"mallekoppie/ChaosMaster/swagger"
+	"mallekoppie/ChaosGenerator/ChaosMaster/swagger"
 
 	"github.com/tkanos/gonfig"
 )
@@ -12,6 +12,18 @@ import (
 func GetConfig() (ChaosMasterConfig, error) {
 	configuration := ChaosMasterConfig{}
 	err := gonfig.GetConf("ChaosMasterConfig.json", &configuration)
+
+	if err != nil {
+		log.Print("Error reading config: %v", err)
+		return configuration, err
+	}
+
+	return configuration, nil
+}
+
+func GetTest(testName string) (swagger.TestCollection, error) {
+	configuration := swagger.TestCollection{}
+	err := gonfig.GetConf("./tests/"+testName+".json", &configuration)
 
 	if err != nil {
 		log.Print("Error reading config: %v", err)

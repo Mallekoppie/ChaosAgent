@@ -1,7 +1,7 @@
 package test
 
 import (
-	"mallekoppie/ChaosAgent/go"
+	"mallekoppie/ChaosGenerator/ChaosAgent/go"
 	"net/http"
 	"testing"
 )

@@ -2,7 +2,8 @@ package swagger
 
 import (
 	"errors"
-	util "mallekoppie/ChaosAgent/util"
+	util "mallekoppie/ChaosGenerator/ChaosAgent/util"
+
 	"time"
 )
 

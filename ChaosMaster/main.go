@@ -1,7 +1,7 @@
 package main
 
 import (
-	"mallekoppie/ChaosMaster/manager"
+	"mallekoppie/ChaosGenerator/ChaosMaster/manager"
 )
 
 func main() {
