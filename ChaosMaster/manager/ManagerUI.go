@@ -51,6 +51,7 @@ func DisplayManagerUI() {
 	Prnt("s       = Status of runners")
 	Prnt("ua      = Update Test Parameters for all")
 	Prnt("u       = Update Test Parameters for specific Agent")
+	Prnt("deploy  = Deploy Test Parameters for specific Agent")
 	Prnt("d       = Display Configured servers")
 	Prnt("c       = Clear")
 	Prnt("q       = Quit")
@@ -88,6 +89,8 @@ func RunUI() {
 		case "ua":
 			OptionUpdateTestParametersForAllAgents()
 		case "u":
+		case "deploy":
+			OptionDeployTestToAllAgents()
 		case "d":
 			OptionDisplayConfigration()
 		case "c":
@@ -99,6 +102,29 @@ func RunUI() {
 		}
 
 	}
+}
+
+func OptionUpdateTestParametersForAllAgents() {
+
+	fmt.Println("Enter the number of users to simulate:")
+	reader.Scan()
+	numberOfUsers := reader.Text()
+
+	numberOfUsersInt, convertErr := strconv.Atoi(numberOfUsers)
+
+	if convertErr != nil {
+		fmt.Println("Error converting your option to int32:", convertErr)
+		return
+	}
+
+	test := swagger.TestParameters{SimulatedUsers: int32(numberOfUsersInt)}
+
+	for i := 0; i < len(Config.Agents); i++ {
+		Config.Agents[i].UpdateTest(test)
+
+		fmt.Printf("Agent %v test pushed \n", Config.Agents[i].Name)
+	}
+
 }
 
 func OptionStartTest() {
@@ -134,7 +160,7 @@ func OptionStartTest() {
 	}
 }
 
-func OptionUpdateTestParametersForAllAgents() {
+func OptionDeployTestToAllAgents() {
 	var name string
 	for len(name) < 1 {
 		fmt.Println("Enter the name of the test that you want to distribute: ")
@@ -163,7 +189,7 @@ func OptionAgentStatusAll() {
 		if err != nil {
 			fmt.Printf("Error getting status for agent %v . Error: %v \n", Config.Agents[i].Name, err)
 		} else {
-			fmt.Printf("Agent %v alive status: %v \n", Config.Agents[i].Name, status)
+			fmt.Printf("Agent %v : Test: %v \tTPS: %v \tUsers: %v \tTR: %v \tExecutionTime: %v \tCPU: %v  \n", Config.Agents[i].Name, status.TestCollectionName, status.TransactionsPerSecond, status.SimulatedUsers, status.RequestsExecuted, status.AverageExecutionTime, status.Cpu)
 		}
 	}
 }
@@ -172,7 +198,7 @@ func OptionIsAgentsAlive() {
 	for i := 0; i < len(Config.Agents); i++ {
 		result := Config.Agents[i].IsAlive()
 
-		fmt.Printf("Agent %v alive status: %v \n ", Config.Agents[i].Name, result)
+		fmt.Printf("Agent %v alive status: %v \n", Config.Agents[i].Name, result)
 	}
 }
 

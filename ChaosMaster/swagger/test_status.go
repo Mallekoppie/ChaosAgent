@@ -20,7 +20,7 @@ type TestStatus struct {
 	TransactionsPerSecond int32 `json:"transactionsPerSecond,omitempty"`
 
 	// Execution time in seconds
-	ExecutionTime int32 `json:"executionTime,omitempty"`
+	AverageExecutionTime int32 `json:"executionTime,omitempty"`
 
 	// CPU usage on the host that the agent is running on
 	Cpu int32 `json:"cpu,omitempty"`

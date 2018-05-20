@@ -82,6 +82,7 @@ func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
 	ExecutionTimeNanosecond = 0
 	RequestsExecuted = 0
 	ErrorCount = 0
+	TestCollectionName = testName
 	go MonitorAndUpdateStatistics()
 	for i := 0; i < simulatedUsersInput; i++ {
 		RunningSimulatedUsers[SimulatedUsers] = true

@@ -194,7 +194,7 @@ definitions:
         description: "The total requests sent to the remote API"
       transactionsPerSecond:
         type: "integer"
-      executionTime:
+      averageExecutionTime:
         type: "integer"
         description: "Execution time in seconds"
       cpu:

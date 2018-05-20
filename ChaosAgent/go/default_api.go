@@ -128,7 +128,7 @@ func StopTestRun(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateTestRun(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodPut {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		log.Println("Invalid method used:", r.Method)
 		return
@@ -147,5 +147,12 @@ func UpdateTestRun(w http.ResponseWriter, r *http.Request) {
 	if marshalErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println("Unable to unmarshal request body: ", marshalErr)
+	}
+
+	updateErr := CoreUpdateTest(params.SimulatedUsers)
+
+	if updateErr != nil {
+		log.Println("Unable to update test run: ", updateErr)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
