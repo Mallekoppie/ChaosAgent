@@ -51,7 +51,7 @@ func DisplayManagerUI() {
 	Prnt("s       = Status of runners")
 	Prnt("ua      = Update Test Parameters for all")
 	Prnt("u       = Update Test Parameters for specific Agent")
-	Prnt("deploy  = Deploy Test Parameters for specific Agent")
+	Prnt("deploy  = Deploy Test Collection for all Agents")
 	Prnt("d       = Display Configured servers")
 	Prnt("c       = Clear")
 	Prnt("q       = Quit")
