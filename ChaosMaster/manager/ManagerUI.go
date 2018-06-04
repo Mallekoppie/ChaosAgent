@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"mallekoppie/ChaosGenerator/ChaosMaster/swagger"
+	"mallekoppie/ChaosGenerator/ChaosMaster/util"
 	"os"
 	"os/exec"
 	"strconv"
@@ -55,6 +56,7 @@ func DisplayManagerUI() {
 	Prnt("d       = Display Configured servers")
 	Prnt("l       = Display test collection files")
 	Prnt("c       = Clear")
+	Prnt("convert = Convert contents of files in conversions")
 	Prnt("q       = Quit")
 	Prnt("")
 }
@@ -99,6 +101,8 @@ func RunUI() {
 			OptionListTestCollectionFiles()
 		case "c":
 			OptionClearOutput()
+		case "convert":
+			util.ConvertFileContentsToBase64()
 		case "q":
 			quit = true
 		default:
