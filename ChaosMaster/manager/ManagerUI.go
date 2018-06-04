@@ -3,12 +3,12 @@ package manager
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
+	"mallekoppie/ChaosGenerator/ChaosMaster/swagger"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
-
-	"mallekoppie/ChaosGenerator/ChaosMaster/swagger"
 )
 
 var (
@@ -53,6 +53,7 @@ func DisplayManagerUI() {
 	Prnt("u       = Update Test Parameters for specific Agent")
 	Prnt("deploy  = Deploy Test Collection for all Agents")
 	Prnt("d       = Display Configured servers")
+	Prnt("l       = Display test collection files")
 	Prnt("c       = Clear")
 	Prnt("q       = Quit")
 	Prnt("")
@@ -94,6 +95,8 @@ func RunUI() {
 			OptionDeployTestToAllAgents()
 		case "d":
 			OptionDisplayConfigration()
+		case "l":
+			OptionListTestCollectionFiles()
 		case "c":
 			OptionClearOutput()
 		case "q":
@@ -102,6 +105,19 @@ func RunUI() {
 			Prnt("Command not supported")
 		}
 
+	}
+}
+
+func OptionListTestCollectionFiles() {
+	files, err := ioutil.ReadDir("tests")
+
+	if err != nil {
+		fmt.Println("Error reading test collection folder: ", err)
+		return
+	}
+
+	for i := 0; i < len(files); i++ {
+		fmt.Println(files[i].Name())
 	}
 }
 
