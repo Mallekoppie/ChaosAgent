@@ -83,7 +83,7 @@ func GetCPUStatus() float64 {
 	data, cpuStatusErr := cpu.Times(true)
 	var valueRetrieved bool
 
-	for valueRetrieved == false {
+	for maxRetries := 0; maxRetries < 5; maxRetries++ {
 
 		for i := range data {
 			if data[i].CPU == "_Total" {
@@ -101,6 +101,10 @@ func GetCPUStatus() float64 {
 			data, cpuStatusErr = cpu.Times(true)
 			continue
 		}
+	}
+
+	if valueRetrieved == false {
+		cpuUsage = -1
 	}
 
 	return cpuUsage
