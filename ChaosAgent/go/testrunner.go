@@ -4,6 +4,7 @@ import (
 	"errors"
 	util "mallekoppie/ChaosGenerator/ChaosAgent/util"
 
+	"log"
 	"time"
 )
 
@@ -162,6 +163,7 @@ func RunTest(config TestCollection, index int32) {
 
 			if err != nil || responseCode != item.ResponseCode || responseBody != item.ResponseBody {
 				testErrors++
+				log.Printf("Error. Expected: %v but received: %v", item.ResponseCode, responseCode)
 			}
 
 			testStats := TestStatistics{
