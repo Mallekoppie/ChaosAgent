@@ -83,6 +83,7 @@ func (c *ChaosAgent) AddTest(test swagger.TestCollection) {
 
 	if err != nil {
 		fmt.Printf("Error adding test to %v . Error: %v", c.Name, err)
+		return
 	}
 
 	if resp.StatusCode != 200 {
