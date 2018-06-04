@@ -62,9 +62,10 @@ func CoreStopTest() {
 	if IsTestRunning == true {
 
 		for SimulatedUsers > 0 {
-			RunningSimulatedUsers[SimulatedUsers] = false
 
 			SimulatedUsers--
+			RunningSimulatedUsers[SimulatedUsers] = false
+
 		}
 
 		IsTestRunning = false
@@ -161,9 +162,12 @@ func RunTest(config TestCollection, index int32) {
 			testTimeNanosecond = result.Nanoseconds()
 			testsCompleted++
 
-			if err != nil || responseCode != item.ResponseCode || responseBody != item.ResponseBody {
+			if err != nil || responseCode != item.ResponseCode {
 				testErrors++
-				log.Printf("Error. Expected: %v but received: %v", item.ResponseCode, responseCode)
+				log.Printf("Error. Expected Code: %v but received: %v", item.ResponseCode, responseCode)
+			} else if len(item.ResponseBody) > 0 && responseBody != item.ResponseBody {
+				testErrors++
+				log.Printf("Error. Expected body: %v but received: %v", item.ResponseBody, responseBody)
 			}
 
 			testStats := TestStatistics{
