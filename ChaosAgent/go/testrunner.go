@@ -48,6 +48,12 @@ func CoreGetTestStatus() TestStatus {
 	}
 	testStatus.TestCollectionName = TestCollectionName
 
+	testStatus.ErrorsRaised = ErrorCount
+
+	if ErrorCount > 0 {
+		testStatus.ErrorsPerSecond = int64(ErrorCount) / testStatus.ExecutionTime
+	}
+
 	return testStatus
 }
 
@@ -123,6 +129,7 @@ func MonitorAndUpdateStatistics() {
 
 		RequestsExecuted = RequestsExecuted + testStats.RequestsExecuted
 		ExecutionTimeNanosecond = ExecutionTimeNanosecond + testStats.TotalExecutionTimeNanosecond
+		ErrorCount = ErrorCount + testStats.ErrorCount
 
 	}
 }

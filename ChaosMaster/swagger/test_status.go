@@ -27,4 +27,8 @@ type TestStatus struct {
 
 	// The number of users being simulated
 	SimulatedUsers int32 `json:"simulatedUsers,omitempty"`
+
+	ErrorsPerSecond int64 `json:"errorsPerSecond,omitempty"`
+
+	ErrorsRaised int32 `json:"errorsRaised,omitempty"`
 }

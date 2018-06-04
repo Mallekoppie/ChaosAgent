@@ -203,6 +203,10 @@ definitions:
       simulatedUsers:
         type: "integer"
         description: "The number of users being simulated"
+	  errorsPerSecond:
+	    type: "integer"
+	  errorsRaised:
+	    type: "integer"		
     example:
       executionTime: 1
       simulatedUsers: 5
