@@ -22,7 +22,8 @@ var (
 
 func init() {
 	RunningSimulatedUsers = make(map[int32]bool)
-	TestStatisticsChan = make(chan TestStatistics, 1000)
+	TestStatisticsChan = make(chan TestStatistics, 2000)
+	go MonitorAndUpdateStatistics()
 }
 
 type TestStatistics struct {
@@ -41,11 +42,12 @@ func CoreGetTestStatus() TestStatus {
 	testStatus.RequestsExecuted = RequestsExecuted
 	testStatus.SimulatedUsers = SimulatedUsers
 	if RequestsExecuted > 0 {
-		testStatus.AverageExecutionTime = ExecutionTimeNanosecond / RequestsExecuted / 1000000
+		testStatus.AverageExecutionTime = ExecutionTimeNanosecond / RequestsExecuted / int64(SimulatedUsers) / 1000000
 	}
 
 	if testStatus.ExecutionTime > 0 {
 		testStatus.TransactionsPerSecond = RequestsExecuted / testStatus.ExecutionTime
+		testStatus.TransactionsPerSecond = testStatus.TransactionsPerSecond * int64(SimulatedUsers)
 	}
 	testStatus.TestCollectionName = TestCollectionName
 
@@ -91,7 +93,7 @@ func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
 	RequestsExecuted = 0
 	ErrorCount = 0
 	TestCollectionName = testName
-	go MonitorAndUpdateStatistics()
+
 	for i := 0; i < simulatedUsersInput; i++ {
 		RunningSimulatedUsers[SimulatedUsers] = true
 		go RunTest(testCollection, SimulatedUsers)
@@ -126,12 +128,22 @@ func CoreUpdateTest(simulatedUsersInput int32) error {
 }
 
 func MonitorAndUpdateStatistics() {
-	for IsTestRunning == true {
+	lastResetTime := time.Now()
+	for true {
 		testStats := <-TestStatisticsChan
 
 		RequestsExecuted = RequestsExecuted + testStats.RequestsExecuted
 		ExecutionTimeNanosecond = ExecutionTimeNanosecond + testStats.TotalExecutionTimeNanosecond
 		ErrorCount = ErrorCount + testStats.ErrorCount
+
+		timeSince := time.Since(lastResetTime)
+
+		if timeSince.Seconds() > 10 {
+			RequestsExecuted = 0
+			ExecutionTimeNanosecond = 0
+			ErrorCount = 0
+			lastResetTime = time.Now()
+		}
 
 	}
 }
