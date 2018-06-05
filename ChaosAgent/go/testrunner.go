@@ -53,7 +53,7 @@ func CoreGetTestStatus() TestStatus {
 
 	testStatus.ErrorsRaised = ErrorCount
 
-	if ErrorCount > 0 {
+	if ErrorCount > 0 && testStatus.ExecutionTime > 0 {
 		testStatus.ErrorsPerSecond = int64(ErrorCount) / testStatus.ExecutionTime
 	}
 
