@@ -1,12 +1,10 @@
 package swagger
 
 import (
-	"errors"
-	util "mallekoppie/ChaosGenerator/ChaosAgent/util"
-
 	"log"
 	"time"
 
+	cpu "github.com/shirou/gopsutil/cpu"
 	vegeta "github.com/tsenart/vegeta/lib"
 )
 
@@ -20,7 +18,7 @@ var (
 	RunningSimulatedUsers   map[int32]bool
 	SampleIntervalSecond    int32 = 10
 	TestStatisticsChan      chan TestStatistics
-	attacker                vegeta.Attacker
+	attacker                *vegeta.Attacker
 )
 
 func init() {
@@ -38,7 +36,7 @@ type TestStatistics struct {
 func CoreGetTestStatus() TestStatus {
 	testStatus := TestStatus{}
 
-	testStatus.Cpu = util.GetCPUStatus() //Slow
+	testStatus.Cpu = GetCPUStatus() //Slow
 	if ExecutionTimeNanosecond > 0 {
 		testStatus.ExecutionTime = ExecutionTimeNanosecond / 1000000000
 	}
@@ -89,14 +87,17 @@ func StartVegeta(testName string, simulatedUsersInput int) {
 		URL:    tests.Tests[0].Url,
 		Body:   []byte(tests.Tests[0].Body),
 	})
-	attacker := vegeta.NewAttacker()
+
+	attacker = vegeta.NewAttacker()
 
 	var metrics vegeta.Metrics
+	IsTestRunning = true
 	for res := range attacker.Attack(targeter, rate, duration, "Big Bang!") {
 		metrics.Add(res)
 		testStats := TestStatistics{
 			RequestsExecuted:             1,
 			TotalExecutionTimeNanosecond: res.Latency.Nanoseconds(),
+			ErrorCount:                   0,
 		}
 
 		TestStatisticsChan <- testStats
@@ -106,25 +107,6 @@ func StartVegeta(testName string, simulatedUsersInput int) {
 }
 
 func CoreUpdateTest(simulatedUsersInput int32) error {
-	if IsTestRunning == false {
-		return errors.New("No Test is running")
-	}
-
-	if simulatedUsersInput < SimulatedUsers-1 {
-		return nil
-	}
-
-	testCollection, configError := ReadTestConfiguration(TestCollectionName)
-
-	if configError != nil {
-		return errors.New("Could not retrieve test config")
-	}
-
-	for SimulatedUsers < simulatedUsersInput {
-		RunningSimulatedUsers[SimulatedUsers] = true
-		go RunTest(testCollection, SimulatedUsers)
-		SimulatedUsers++
-	}
 
 	return nil
 }
@@ -140,7 +122,7 @@ func MonitorAndUpdateStatistics() {
 
 		timeSince := time.Since(lastResetTime)
 
-		if timeSince.Seconds() > 10 {
+		if timeSince.Seconds() > 20 {
 			RequestsExecuted = 0
 			ExecutionTimeNanosecond = 0
 			ErrorCount = 0
@@ -150,47 +132,34 @@ func MonitorAndUpdateStatistics() {
 	}
 }
 
-func RunTest(config TestCollection, index int32) {
+func GetCPUStatus() float64 {
+	var cpuUsage float64
+	data, cpuStatusErr := cpu.Times(true)
+	var valueRetrieved bool
 
-	for RunningSimulatedUsers[index] == true {
+	for maxRetries := 0; maxRetries < 5; maxRetries++ {
 
-		for testIndex := range config.Tests {
-			var testErrors int32
-			var testTimeNanosecond, testsCompleted int64
-			if RunningSimulatedUsers[index] == false {
+		for i := range data {
+			if data[i].CPU == "_Total" {
+				cpuUsage = data[i].User
+				valueRetrieved = true
 				break
 			}
+		}
 
-			item := config.Tests[testIndex]
-			headers := make(map[string]string)
-
-			if len(item.Headers) > 0 {
-				for h := range item.Headers {
-					headers[item.Headers[h].Name] = item.Headers[h].Value
-				}
+		if cpuStatusErr != nil || len(data) < 1 {
+			if cpuStatusErr != nil {
+				log.Println("Error retrieving CPU stats:", cpuStatusErr)
 			}
 
-			startTime := time.Now()
-			responseCode, responseBody, err := util.MakeHttpCall(item.Url, item.Method, headers, item.Body)
-			result := time.Since(startTime)
-			testTimeNanosecond = result.Nanoseconds()
-			testsCompleted++
-
-			if err != nil || responseCode != item.ResponseCode {
-				testErrors++
-				log.Printf("Error. Expected Code: %v but received: %v", item.ResponseCode, responseCode)
-			} else if len(item.ResponseBody) > 0 && responseBody != item.ResponseBody {
-				testErrors++
-				log.Printf("Error. Expected body: %v but received: %v", item.ResponseBody, responseBody)
-			}
-
-			testStats := TestStatistics{
-				RequestsExecuted:             testsCompleted,
-				TotalExecutionTimeNanosecond: testTimeNanosecond,
-				ErrorCount:                   testErrors,
-			}
-
-			TestStatisticsChan <- testStats
+			data, cpuStatusErr = cpu.Times(true)
+			continue
 		}
 	}
+
+	if valueRetrieved == false {
+		cpuUsage = -1
+	}
+
+	return cpuUsage
 }

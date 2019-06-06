@@ -20,7 +20,7 @@ import (
 	//
 	//    sw "github.com/myname/myrepo/go"
 	//
-	sw "mallekoppie/ChaosGenerator/ChaosAgent/go"
+	sw "mallekoppie/ChaosGenerator/ChaosAgent.Vegeta/go"
 
 	"github.com/tkanos/gonfig"
 )
