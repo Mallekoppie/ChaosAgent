@@ -72,8 +72,9 @@ func CoreStopTest() {
 
 func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
 
-	go StartVegeta(testName, simulatedUsersInput)
-
+	if IsTestRunning == false {
+		go StartVegeta(testName, simulatedUsersInput)
+	}
 	return true, nil
 }
 
