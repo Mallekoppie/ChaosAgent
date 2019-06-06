@@ -1,0 +1,23 @@
+{
+    "name": "LinkerdToConnectionTestDocker",
+    "tests": [
+        {
+            "name": "Linkerd1",
+            "method": "GET",
+            "url": "http://localhost:85/ConnectionTest/ConnectionTest",
+            "responseCode": 200
+        },
+        {
+            "name": "Linkerd2",
+            "method": "GET",
+            "url": "http://localhost:86/ConnectionTest/ConnectionTest",
+            "responseCode": 200
+        },
+        {
+            "name": "Linkerd3",
+            "method": "GET",
+            "url": "http://localhost:87/ConnectionTest/ConnectionTest",
+            "responseCode": 200
+        }
+    ]
+}

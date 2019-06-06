@@ -1,0 +1,11 @@
+{
+    "name": "ConnectionTest",
+    "tests": [
+        {
+            "name": "Linkerd1",
+            "method": "GET",
+            "url": "http://10.0.0.3:8082/ConnectionTest",
+            "responseCode": 200
+        }
+    ]
+}

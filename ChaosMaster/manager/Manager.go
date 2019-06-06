@@ -70,7 +70,7 @@ func (c *ChaosAgent) IsAlive() bool {
 	if err != nil {
 		//fmt.Printf("Error checking if %v is alive. Error: %v", c.Name, err)
 		return false
-	} else if resp.StatusCode == 200 {
+	} else if resp != nil && resp.StatusCode == 200 {
 		return true
 	}
 
@@ -86,7 +86,7 @@ func (c *ChaosAgent) AddTest(test swagger.TestCollection) {
 		return
 	}
 
-	if resp.StatusCode != 200 {
+	if resp != nil && resp.StatusCode != 200 {
 		fmt.Printf("Error adding test for %v . ResponseCode: ", c.Name, resp.StatusCode)
 	}
 }
@@ -98,7 +98,7 @@ func (c *ChaosAgent) StartTest(testParameters swagger.TestParameters) {
 		fmt.Printf("Error starting test to %v . Error: %v", c.Name, err)
 	}
 
-	if resp.StatusCode != 200 {
+	if resp != nil && resp.StatusCode != 200 {
 		fmt.Printf("Error starting test for %v . ResponseCode: ", c.Name, resp.StatusCode)
 	}
 }
@@ -110,19 +110,21 @@ func (c *ChaosAgent) UpdateTest(testParameters swagger.TestParameters) {
 		fmt.Printf("Error updating test to %v . Error: %v", c.Name, err)
 	}
 
-	if resp.StatusCode != 200 {
+	if resp != nil && resp.StatusCode != 200 {
 		fmt.Printf("Error updating test for %v . ResponseCode: ", c.Name, resp.StatusCode)
 	}
 }
 
 func (c *ChaosAgent) StopTest() {
-	resp, err := c.Client.DefaultApi.StopTestRun(c.Ctx, "")
+	if c != nil && c.Client != nil && c.Client.DefaultApi != nil {
+		resp, err := c.Client.DefaultApi.StopTestRun(c.Ctx, "")
 
-	if err != nil {
-		fmt.Printf("Error stopping test to %v . Error: %v", c.Name, err)
-	}
+		if err != nil {
+			fmt.Printf("Error stopping test to %v . Error: %v", c.Name, err)
+		}
 
-	if resp.StatusCode != 200 {
-		fmt.Printf("Error stopping test for %v . ResponseCode: ", c.Name, resp.StatusCode)
+		if resp != nil && resp.StatusCode != 200 {
+			fmt.Printf("Error stopping test for %v . ResponseCode: ", c.Name, resp.StatusCode)
+		}
 	}
 }

@@ -1,4 +1,8 @@
 {
-	"Agents":[{"name":"First", "url":"http://localhost:9000/Integration/ChaosAgent/v1"},
-	{"name":"Second", "url":"http://localhost:9001/Integration/ChaosAgent/v1"}]
+	"Agents": [
+		{
+			"name": "First",
+			"url": "http://localhost:9002/Integration/ChaosAgent/v1"
+		}
+	]
 }
