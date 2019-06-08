@@ -2,6 +2,7 @@ package swagger
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	cpu "github.com/shirou/gopsutil/cpu"
@@ -83,11 +84,31 @@ func StartVegeta(testName string, simulatedUsersInput int) {
 
 	duration := 0 * time.Second
 	tests, _ := ReadTestConfiguration(testName)
-	targeter := vegeta.NewStaticTargeter(vegeta.Target{
-		Method: tests.Tests[0].Method,
-		URL:    tests.Tests[0].Url,
-		Body:   []byte(tests.Tests[0].Body),
-	})
+	//targeter := vegeta.NewStaticTargeter(vegeta.Target{
+	//	Method: tests.Tests[0].Method,
+	//	URL:    tests.Tests[0].Url,
+	//	Body:   []byte(tests.Tests[0].Body),
+	//})
+
+	targets := make([]vegeta.Target, 0)
+
+	for testIndex := range tests.Tests {
+		headers := http.Header{}
+		if len(tests.Tests[testIndex].Headers) > 0 {
+			for headerIndex := range tests.Tests[testIndex].Headers {
+				headers.Add(tests.Tests[testIndex].Headers[headerIndex].Name, tests.Tests[testIndex].Headers[headerIndex].Value)
+			}
+		}
+
+		targets = append(targets, vegeta.Target{
+			Method: tests.Tests[testIndex].Method,
+			URL:    tests.Tests[testIndex].Url,
+			Body:   []byte(tests.Tests[testIndex].Body),
+			Header: headers,
+		})
+	}
+
+	targeter := vegeta.NewStaticTargeter(targets...)
 
 	attacker = vegeta.NewAttacker()
 
