@@ -121,7 +121,9 @@ func OptionListTestCollectionFiles() {
 	}
 
 	for i := 0; i < len(files); i++ {
-		fmt.Println(files[i].Name())
+		filename := files[i].Name()
+		result := strings.Index(filename, ".json")
+		fmt.Println(filename[0:result])
 	}
 }
 
