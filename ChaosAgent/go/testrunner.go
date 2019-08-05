@@ -18,14 +18,12 @@ var (
 	ErrorCount              int32
 	TestCollectionName      string
 	IsTestRunning           bool
-	RunningSimulatedUsers   map[int32]bool
 	SampleIntervalSecond    int32 = 10
 	TestStatisticsChan      chan TestStatistics
 	attacker                *vegeta.Attacker
 )
 
 func init() {
-	RunningSimulatedUsers = make(map[int32]bool)
 	TestStatisticsChan = make(chan TestStatistics, 2000)
 	go MonitorAndUpdateStatistics()
 }
@@ -67,13 +65,8 @@ func CoreGetTestStatus() TestStatus {
 func CoreStopTest() {
 	if IsTestRunning == true {
 		attacker.Stop()
-		for SimulatedUsers > 0 {
 
-			SimulatedUsers--
-			RunningSimulatedUsers[SimulatedUsers] = false
-
-		}
-
+		SimulatedUsers = 0
 		IsTestRunning = false
 	}
 }
@@ -169,8 +162,7 @@ func CoreUpdateTest(simulatedUsersInput int32) error {
 	}
 
 	for SimulatedUsers < simulatedUsersInput {
-		RunningSimulatedUsers[SimulatedUsers] = true
-		go RunTest(testCollection, SimulatedUsers)
+		go RunTest(testCollection)
 		SimulatedUsers++
 	}
 
@@ -198,14 +190,14 @@ func MonitorAndUpdateStatistics() {
 	}
 }
 
-func RunTest(config TestCollection, index int32) {
+func RunTest(config TestCollection) {
 
-	for RunningSimulatedUsers[index] == true {
+	for IsTestRunning == true {
 
 		for testIndex := range config.Tests {
 			var testErrors int32
 			var testTimeNanosecond, testsCompleted int64
-			if RunningSimulatedUsers[index] == false {
+			if IsTestRunning == false {
 				break
 			}
 
