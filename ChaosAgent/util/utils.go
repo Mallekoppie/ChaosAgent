@@ -1,6 +1,7 @@
 package util
 
 import (
+	"crypto/tls"
 	"log"
 
 	"bytes"
@@ -12,7 +13,8 @@ import (
 )
 
 var (
-	httpClient *http.Client
+	httpClient       *http.Client
+	DefaultTLSConfig = &tls.Config{InsecureSkipVerify: true}
 )
 
 const (
@@ -30,6 +32,7 @@ func createHTTPClient() *http.Client {
 	client := &http.Client{
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost: MaxIdleConnections,
+			TLSClientConfig:     DefaultTLSConfig,
 		},
 		Timeout: time.Duration(RequestTimeout) * time.Second,
 	}

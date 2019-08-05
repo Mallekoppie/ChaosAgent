@@ -5,7 +5,10 @@ import (
 	util "mallekoppie/ChaosGenerator/ChaosAgent/util"
 
 	"log"
+	"net/http"
 	"time"
+
+	vegeta "github.com/tsenart/vegeta/lib"
 )
 
 var (
@@ -18,6 +21,7 @@ var (
 	RunningSimulatedUsers   map[int32]bool
 	SampleIntervalSecond    int32 = 10
 	TestStatisticsChan      chan TestStatistics
+	attacker                *vegeta.Attacker
 )
 
 func init() {
@@ -41,7 +45,7 @@ func CoreGetTestStatus() TestStatus {
 	}
 	testStatus.RequestsExecuted = RequestsExecuted
 	testStatus.SimulatedUsers = SimulatedUsers
-	if RequestsExecuted > 0 {
+	if RequestsExecuted > 0 && SimulatedUsers > 0 {
 		testStatus.AverageExecutionTime = ExecutionTimeNanosecond / RequestsExecuted / int64(SimulatedUsers) / 1000000
 	}
 
@@ -62,7 +66,7 @@ func CoreGetTestStatus() TestStatus {
 
 func CoreStopTest() {
 	if IsTestRunning == true {
-
+		attacker.Stop()
 		for SimulatedUsers > 0 {
 
 			SimulatedUsers--
@@ -80,27 +84,73 @@ func CoreRunTest(testName string, simulatedUsersInput int) (bool, error) {
 		return IsTestRunning, errors.New("Test is already running")
 	}
 
-	testCollection, configError := ReadTestConfiguration(testName)
-
-	if configError != nil {
-		IsTestRunning = false
-		return IsTestRunning, configError
-	}
-
-	IsTestRunning = true
-	SimulatedUsers = 0
-	ExecutionTimeNanosecond = 0
-	RequestsExecuted = 0
-	ErrorCount = 0
-	TestCollectionName = testName
-
-	for i := 0; i < simulatedUsersInput; i++ {
-		RunningSimulatedUsers[SimulatedUsers] = true
-		go RunTest(testCollection, SimulatedUsers)
-		SimulatedUsers++
+	if IsTestRunning == false {
+		IsTestRunning = true
+		SimulatedUsers = 0
+		ExecutionTimeNanosecond = 0
+		RequestsExecuted = 0
+		ErrorCount = 0
+		TestCollectionName = testName
+		go StartVegeta(testName, simulatedUsersInput)
 	}
 
 	return IsTestRunning, nil
+}
+
+func StartVegeta(testName string, simulatedUsersInput int) {
+	//SimulatedUsers = int32(simulatedUsersInput)
+	rate := vegeta.Rate{Freq: simulatedUsersInput, Per: time.Second}
+
+	duration := 0 * time.Second
+	tests, _ := ReadTestConfiguration(testName)
+
+	targets := make([]vegeta.Target, 0)
+
+	for testIndex := range tests.Tests {
+		headers := http.Header{}
+		if len(tests.Tests[testIndex].Headers) > 0 {
+			for headerIndex := range tests.Tests[testIndex].Headers {
+				headers.Add(tests.Tests[testIndex].Headers[headerIndex].Name, tests.Tests[testIndex].Headers[headerIndex].Value)
+			}
+		}
+
+		targets = append(targets, vegeta.Target{
+			Method: tests.Tests[testIndex].Method,
+			URL:    tests.Tests[testIndex].Url,
+			Body:   []byte(tests.Tests[testIndex].Body),
+			Header: headers,
+		})
+	}
+
+	targeter := vegeta.NewStaticTargeter(targets...)
+
+	attacker = vegeta.NewAttacker()
+
+	var metrics vegeta.Metrics
+	IsTestRunning = true
+	for res := range attacker.Attack(targeter, rate, duration, "Big Bang!") {
+		metrics.Add(res)
+
+		var executed int64
+		var errors int32
+
+		if len(res.Error) > 0 {
+			errors = 1
+
+			log.Println("Error: ", res.Error)
+		} else {
+			executed = 1
+		}
+
+		testStats := TestStatistics{
+			RequestsExecuted:             executed,
+			TotalExecutionTimeNanosecond: res.Latency.Nanoseconds(),
+			ErrorCount:                   errors,
+		}
+
+		TestStatisticsChan <- testStats
+	}
+	metrics.Close()
 }
 
 func CoreUpdateTest(simulatedUsersInput int32) error {
