@@ -14,3 +14,12 @@
 .glide/
 
 go/TestRunnerFirst.json
+ChaosMaster/tests/ConnectionTest.gw.json
+ChaosMaster/tests/ConnectionTestSecure.json
+ChaosMaster/tests/PerfTest.json
+ChaosMaster/tests/amq-send-and-receive.json
+ChaosMaster/tests/amq.json
+ChaosMaster/tests/simple.json
+ChaosMaster/conversions
+ChaosAgent/simple.json
+.vs/

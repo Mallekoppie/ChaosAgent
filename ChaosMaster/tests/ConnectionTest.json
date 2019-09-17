@@ -4,8 +4,16 @@
         {
             "name": "Linkerd1",
             "method": "GET",
-            "url": "http://10.0.0.3:8082/ConnectionTest",
-            "responseCode": 200
+            "url": "http://localhost:80/ConnectionTest",
+            "responseCode": 200,
+            "Body":""
+        },
+        {
+            "name": "Linkerd1",
+            "method": "GET",
+            "url": "http://localhost:80/",
+            "responseCode": 200,
+            "Body":""
         }
     ]
 }
