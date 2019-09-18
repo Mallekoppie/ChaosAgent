@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
-	"mallekoppie/ChaosGenerator/ChaosMaster/swagger"
 	"mallekoppie/ChaosGenerator/ChaosMaster/util"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+
+	pb "mallekoppie/ChaosGenerator/Chaos"
 )
 
 var (
@@ -149,7 +150,7 @@ func OptionUpdateTestParametersForOneAgent() {
 		return
 	}
 
-	test := swagger.TestParameters{SimulatedUsers: int32(numberOfUsersInt)}
+	test := pb.TestParameters{Simulatedusers: int32(numberOfUsersInt)}
 
 	for i := 0; i < len(Config.Agents); i++ {
 
@@ -174,7 +175,7 @@ func OptionUpdateTestParametersForAllAgents() {
 		return
 	}
 
-	test := swagger.TestParameters{SimulatedUsers: int32(numberOfUsersInt)}
+	test := pb.TestParameters{Simulatedusers: int32(numberOfUsersInt)}
 
 	for i := 0; i < len(Config.Agents); i++ {
 		Config.Agents[i].UpdateTest(test)
@@ -208,7 +209,7 @@ func OptionStartTest() {
 		return
 	}
 
-	test := swagger.TestParameters{SimulatedUsers: int32(numberOfUsersInt), TestCollectionName: testName}
+	test := pb.TestParameters{Simulatedusers: int32(numberOfUsersInt), TestCollectionName: testName}
 
 	for i := 0; i < len(Config.Agents); i++ {
 		Config.Agents[i].StartTest(test)
