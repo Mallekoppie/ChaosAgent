@@ -9,6 +9,8 @@ import (
 	"time"
 
 	vegeta "github.com/tsenart/vegeta/lib"
+
+	pb "mallekoppie/ChaosGenerator/Chaos"
 )
 
 var (
@@ -34,8 +36,8 @@ type TestStatistics struct {
 	ErrorCount                   int32
 }
 
-func CoreGetTestStatus() TestStatus {
-	testStatus := TestStatus{}
+func CoreGetTestStatus() pb.TestStatus {
+	testStatus := pb.TestStatus{}
 
 	testStatus.Cpu = util.GetCPUStatus() //Slow
 	if ExecutionTimeNanosecond > 0 {
@@ -190,7 +192,7 @@ func MonitorAndUpdateStatistics() {
 	}
 }
 
-func RunTest(config TestCollection) {
+func RunTest(config pb.TestCollection) {
 
 	for IsTestRunning == true {
 
@@ -216,7 +218,7 @@ func RunTest(config TestCollection) {
 			testTimeNanosecond = result.Nanoseconds()
 			testsCompleted++
 
-			if err != nil || responseCode != item.ResponseCode {
+			if err != nil || (int32(responseCode)) != item.ResponseCode {
 				testErrors++
 				log.Printf("Error. Expected Code: %v but received: %v", item.ResponseCode, responseCode)
 			} else if len(item.ResponseBody) > 0 && responseBody != item.ResponseBody {

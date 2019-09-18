@@ -8,9 +8,11 @@ import (
 	"os"
 
 	"github.com/tkanos/gonfig"
+
+	pb "mallekoppie/ChaosGenerator/Chaos"
 )
 
-func WriteTestConfiguration(config TestCollection) error {
+func WriteTestConfiguration(config pb.TestCollection) error {
 	data, err := json.Marshal(config)
 
 	if err != nil {
@@ -32,8 +34,8 @@ func WriteTestConfiguration(config TestCollection) error {
 
 // The body of the requests for each test must be base64 encoded.
 // We don't do anything when writing but when reading we must decode it
-func ReadTestConfiguration(name string) (TestCollection, error) {
-	configuration := TestCollection{}
+func ReadTestConfiguration(name string) (pb.TestCollection, error) {
+	configuration := pb.TestCollection{}
 	err := gonfig.GetConf(name+".json", &configuration)
 
 	if err != nil {
