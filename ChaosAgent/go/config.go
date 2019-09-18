@@ -12,20 +12,32 @@ import (
 	pb "mallekoppie/ChaosGenerator/Chaos"
 )
 
+func ClearTestsDirectory() error {
+	err := os.RemoveAll("tests")
+	if err != nil {
+		log.Println("Unable to remove tests directory: ", err.Error())
+		return err
+	}
+
+	return nil
+}
+
 func WriteTestConfiguration(config pb.TestCollection) error {
 	data, err := json.Marshal(config)
 
 	if err != nil {
-		log.Println("Failed to marshall config: %v", err)
+		log.Printf("Failed to marshall config: %v", err)
 		return err
 	}
 
-	name := config.Name + ".json"
+	os.MkdirAll("tests", 0755)
+
+	name := "tests/" + config.Name + ".json"
 
 	err = io.WriteFile(name, data, os.ModeExclusive)
 
 	if err != nil {
-		log.Println("Failed to marshall config: %v", err)
+		log.Printf("Failed to marshall config: %v", err)
 		return err
 	}
 
@@ -36,10 +48,10 @@ func WriteTestConfiguration(config pb.TestCollection) error {
 // We don't do anything when writing but when reading we must decode it
 func ReadTestConfiguration(name string) (pb.TestCollection, error) {
 	configuration := pb.TestCollection{}
-	err := gonfig.GetConf(name+".json", &configuration)
+	err := gonfig.GetConf("tests/"+name+".json", &configuration)
 
 	if err != nil {
-		log.Print("Error reading config: %v", err)
+		log.Printf("Error reading config: %v", err)
 		return configuration, err
 	}
 

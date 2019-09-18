@@ -24,3 +24,5 @@ ChaosMaster/conversions
 ChaosAgent/simple.json
 .vs/
 chaos.pb.go
+
+ChaosAgent/tests/

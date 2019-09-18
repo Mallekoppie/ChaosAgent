@@ -5,10 +5,12 @@ import (
 	json "encoding/json"
 	"net/http"
 	"testing"
+
+	pb "mallekoppie/ChaosGenerator/Chaos"
 )
 
 func init() {
-	config := TestCollection{Name: "test"}
+	config := pb.TestCollection{Name: "test"}
 	WriteTestConfiguration(config)
 }
 
@@ -27,7 +29,7 @@ func TestReadConfig(t *testing.T) {
 }
 
 func TestWriteConfig(t *testing.T) {
-	config := TestCollection{Name: "test"}
+	config := pb.TestCollection{Name: "test"}
 
 	WriteTestConfiguration(config)
 }
@@ -37,14 +39,14 @@ type TestWithBase64Body struct {
 }
 
 func TestWriteConfigWithBase64Body(t *testing.T) {
-	config := TestCollection{Name: "testBase64Body"}
+	config := pb.TestCollection{Name: "testBase64Body"}
 	body := TestWithBase64Body{Name: "TestValue"}
 
 	data, _ := json.Marshal(body)
 
 	encodedData := base64.StdEncoding.EncodeToString(data)
 
-	config.Tests = []Test{{
+	config.Tests = []*pb.Test{{
 		Name:         "BasicGet",
 		Method:       "GET",
 		Body:         encodedData,
@@ -74,8 +76,8 @@ func TestWriteConfigWithBase64Body(t *testing.T) {
 }
 
 func TestCreateTestRunnerConfig(t *testing.T) {
-	config := TestCollection{Name: "TestRunnerFirst"}
-	config.Tests = []Test{{
+	config := pb.TestCollection{Name: "TestRunnerFirst"}
+	config.Tests = []*pb.Test{{
 		Name:         "BasicGet",
 		Method:       "GET",
 		Body:         "",

@@ -78,3 +78,13 @@ func (*Service) UpdateTestRun(ctx context.Context, req *pb.TestParameters) (*pb.
 func (*Service) GetVersion(ctx context.Context, req *pb.Request) (*pb.GetVersionResponse, error) {
 	return &pb.GetVersionResponse{Version: "2.0.0", Hostname: "Unknown"}, nil
 }
+
+func (*Service) DeleteTests(ctx context.Context, req *pb.DeleteTestsRequest) (*pb.DeleteTestsResponse, error) {
+	response := pb.DeleteTestsResponse{}
+	err := core.ClearTestsDirectory()
+	if err != nil {
+		return &response, err
+	}
+
+	return &response, nil
+}

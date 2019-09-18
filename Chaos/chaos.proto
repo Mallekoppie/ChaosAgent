@@ -11,6 +11,7 @@ service ChaosAgent {
     rpc StopTestRun(StopTestRequest) returns (Response) {}
     rpc UpdateTestRun(TestParameters) returns (Response) {}
     rpc GetVersion(Request) returns (GetVersionResponse) {}
+    rpc DeleteTests(DeleteTestsRequest) returns (DeleteTestsResponse) {}
 }
 
 message TestCollection {
@@ -66,4 +67,11 @@ message Request {
 message Response {
     int32 status = 1;
     bool result = 2;
+}
+
+
+message DeleteTestsRequest {
+}
+
+message DeleteTestsResponse {
 }

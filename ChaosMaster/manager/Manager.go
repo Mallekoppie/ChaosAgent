@@ -154,3 +154,24 @@ func (c *ChaosAgent) StopTest() {
 		}
 	}
 }
+
+func (c *ChaosAgent) GetVersion() (pb.GetVersionResponse, error) {
+
+	version, err := c.Client.GetVersion(c.Ctx, &pb.Request{})
+
+	if err != nil {
+		return *version, err
+	} else {
+		return *version, nil
+	}
+}
+
+func (c *ChaosAgent) DeleteTests() {
+	_, err := c.Client.DeleteTests(c.Ctx, &pb.DeleteTestsRequest{})
+	if err != nil {
+		fmt.Printf("Agent %v encountered error while deleting tests directory: %v", c.Url, err.Error())
+		return
+	}
+
+	fmt.Println("Tests cleared on agent: ", c.Url)
+}
