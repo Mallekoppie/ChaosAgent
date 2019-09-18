@@ -55,21 +55,24 @@ func (c *ChaosAgent) Init() error {
 		return err
 	}
 
+	//conn, err := grpc.Dial(c.Url, grpc.WithTransportCredentials(creds))
 	conn, err := grpc.Dial(c.Url, grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Printf("Unable to connect to %v. Error: %v", c.Url, err.Error())
 		return err
 	}
+	log.Println("Connection state: ", conn.GetState().String())
 
 	c.Client = pb.NewChaosAgentClient(conn)
+	c.Ctx = context.TODO()
 
 	resp, err := c.Client.GetVersion(c.Ctx, &pb.Request{})
 	if err != nil {
-		log.Printf("Error during version check to %v. Error: %v", c.Url, err.Error())
+		log.Printf("Error during version check to %s. Error: %s", c.Url, err.Error())
 		return err
 	}
 
-	log.Println("Agent at %v si online with version %v", c.Url, resp.GetVersion())
+	log.Printf("%v is online with version %v", c.Url, resp.GetVersion())
 
 	return nil
 }
