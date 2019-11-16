@@ -1,0 +1,11 @@
+@startuml
+
+participant DEV
+participant ChaosMaster
+participant ChaosMasterTests
+participant ChaosAgent
+participant ChaosAgent.Config
+participant Target
+
+
+@enduml
