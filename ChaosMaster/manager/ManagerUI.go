@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
-	"mallekoppie/ChaosGenerator/ChaosMaster/swagger"
 	"mallekoppie/ChaosGenerator/ChaosMaster/util"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+
+	pb "mallekoppie/ChaosGenerator/Chaos"
 )
 
 var (
@@ -56,7 +57,9 @@ func DisplayManagerUI() {
 	Prnt("d       = Display Configured servers")
 	Prnt("l       = Display test collection files")
 	Prnt("c       = Clear")
+	Prnt("delete  = Delete configuration files")
 	Prnt("convert = Convert contents of files in conversions")
+	Prnt("v  	  = Get the version of each agent")
 	Prnt("q       = Quit")
 	Prnt("")
 }
@@ -101,8 +104,12 @@ func RunUI() {
 			OptionListTestCollectionFiles()
 		case "c":
 			OptionClearOutput()
+		case "delete":
+			OptionDeleteTests()
 		case "convert":
 			util.ConvertFileContentsToBase64()
+		case "v":
+			OptionGetVersion()
 		case "q":
 			quit = true
 		default:
@@ -149,7 +156,7 @@ func OptionUpdateTestParametersForOneAgent() {
 		return
 	}
 
-	test := swagger.TestParameters{SimulatedUsers: int32(numberOfUsersInt)}
+	test := pb.TestParameters{Simulatedusers: int32(numberOfUsersInt)}
 
 	for i := 0; i < len(Config.Agents); i++ {
 
@@ -174,7 +181,7 @@ func OptionUpdateTestParametersForAllAgents() {
 		return
 	}
 
-	test := swagger.TestParameters{SimulatedUsers: int32(numberOfUsersInt)}
+	test := pb.TestParameters{Simulatedusers: int32(numberOfUsersInt)}
 
 	for i := 0; i < len(Config.Agents); i++ {
 		Config.Agents[i].UpdateTest(test)
@@ -208,7 +215,7 @@ func OptionStartTest() {
 		return
 	}
 
-	test := swagger.TestParameters{SimulatedUsers: int32(numberOfUsersInt), TestCollectionName: testName}
+	test := pb.TestParameters{Simulatedusers: int32(numberOfUsersInt), TestCollectionName: testName}
 
 	for i := 0; i < len(Config.Agents); i++ {
 		Config.Agents[i].StartTest(test)
@@ -296,5 +303,22 @@ func OptionStopAllTests() {
 	for i := 0; i < len(Config.Agents); i++ {
 		fmt.Println("Stopping test for Agent: " + Config.Agents[i].Name)
 		Config.Agents[i].StopTest()
+	}
+}
+
+func OptionGetVersion() {
+	for i := 0; i < len(Config.Agents); i++ {
+		resp, err := Config.Agents[i].GetVersion()
+		if err != nil {
+			fmt.Println("Unable to version for agent at: ", Config.Agents[i].Url)
+		} else {
+			fmt.Printf("Agent: %v. Version: %v \n", Config.Agents[i].Url, resp.Version)
+		}
+	}
+}
+
+func OptionDeleteTests() {
+	for i := 0; i < len(Config.Agents); i++ {
+		Config.Agents[i].DeleteTests()
 	}
 }

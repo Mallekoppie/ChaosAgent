@@ -11,18 +11,17 @@ package main
 
 import (
 	"log"
-	"net/http"
+	"net"
 
-	// WARNING!
-	// Change this to a fully-qualified import path
-	// once you place this file into your project.
-	// For example,
-	//
-	//    sw "github.com/myname/myrepo/go"
-	//
-	sw "mallekoppie/ChaosGenerator/ChaosAgent/go"
+	"mallekoppie/ChaosGenerator/ChaosAgent/service"
 
 	"github.com/tkanos/gonfig"
+
+	pb "mallekoppie/ChaosGenerator/Chaos"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/reflection"
 )
 
 func GetConfig() (ChaosAgentConfig, error) {
@@ -48,7 +47,29 @@ func main() {
 	}
 
 	log.Printf("Server started on Port: " + config.Port)
-	router := sw.NewRouter()
 
-	log.Fatal(http.ListenAndServe(":"+config.Port, router))
+	listener, err := net.Listen("tcp", "0.0.0.0:"+config.Port)
+	if err != nil {
+		log.Println("Unable to listen on port: ", err.Error())
+		return
+	}
+
+	creds, err := credentials.NewServerTLSFromFile("./chaos_agent.cer", "./chaos_agent.pkcs8")
+	if err != nil {
+		log.Println("Unable to load key pair: ", err.Error())
+		return
+	}
+
+	server := grpc.NewServer(grpc.Creds(creds))
+
+	pb.RegisterChaosAgentServer(server, &service.Service{})
+
+	reflection.Register(server)
+
+	log.Println("Server listening address: ", config.Port)
+
+	if err = server.Serve(listener); err != nil {
+		log.Fatalln("Failed to server: ", err.Error())
+	}
+
 }

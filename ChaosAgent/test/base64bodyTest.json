@@ -1,1 +1,0 @@
-{"name":"base64bodyTest","tests":[{"name":"BasicGet","method":"GET","url":"http://localhost:9001/TestTestRunnerFirstBasic","responseCode":200}]}
