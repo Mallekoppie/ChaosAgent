@@ -1,14 +1,8 @@
 @startuml
 
-package "Remote1" {
+package "RemoteAgents" {
     component [ChaosAgent1]
-}
-
-package "Remote2" {
     component [ChaosAgent3]
-}
-
-package "Remote3" {
     component [ChaosAgent2]
 }
 
@@ -16,13 +10,22 @@ package "Management" {
     component "ChaosMaster"
 }
 
-[ChaosMaster] --> [ChaosAgent1] : Management Connection
-[ChaosMaster] --> [ChaosAgent2] : Management Connection
-[ChaosMaster] --> [ChaosAgent3] : Management Connection
+package "Monitoring" {
+    component [Prometheus]
+    component [Grafana]
+}
+
+[ChaosMaster] -right--> [ChaosAgent1] : Management Connection
+[ChaosMaster] -right--> [ChaosAgent2] : Management Connection
+[ChaosMaster] -right--> [ChaosAgent3] : Management Connection
+
+[Prometheus] -right--> [ChaosMaster] : Query metrics
+[Grafana] --> [Prometheus] : Graph metrics
 
 actor "DEV"
 
 [DEV] --> [ChaosMaster] : Interacts with Load Test System
+[DEV] --> [Grafana] : Observe test metrics
 
 
 
