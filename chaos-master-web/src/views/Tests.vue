@@ -2,22 +2,29 @@
   <div>
     <b-list-group>
       <b-list-group-item v-for="testGroup in testGroups" :key="testGroup.id">
-          <b-form>
-              <b-form-group label="Name">
-                  {{testGroup.name}}
-              </b-form-group>
-              <b-form-group label="Description">
-                  {{testGroup.description}}
-              </b-form-group>
-          </b-form>                
-        <b-button @click="showDetail(testGroup)">Show/Hide Test Collections</b-button>
+        <b-form>
+          <b-form-group label="Name">{{ testGroup.name }}</b-form-group>
+          <b-form-group label="Description">{{
+            testGroup.description
+          }}</b-form-group>
+        </b-form>
+        <b-button @click="showDetail(testGroup)"
+          >Show/Hide Test Collections</b-button
+        >
         <b-list-group v-show="testGroup.showDetail">
           <b-list-group-item
             v-for="testCollection in testGroup.testCollections"
             :key="testCollection.id"
           >
-            <span>Name: {{testCollection.name}}</span>
-            <span>Description: {{testCollection.description}}</span>
+            <span>Name: {{ testCollection.name }}</span>
+            <span>Description: {{ testCollection.description }}</span>
+            <router-link
+              tag="button"
+              class="link"
+              :to="{ name: 'test-detail', params: { id: testCollection.id } }"
+            >
+              Edit
+            </router-link>
           </b-list-group-item>
         </b-list-group>
       </b-list-group-item>
@@ -39,7 +46,7 @@ export default {
     this.testGroups = dataStore.getTestGroups();
   },
   methods: {
-    showDetail(item) {      
+    showDetail(item) {
       if (item.showDetail == true) {
         item.showDetail = false;
       } else {

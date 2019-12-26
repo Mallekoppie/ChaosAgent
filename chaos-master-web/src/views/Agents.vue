@@ -5,28 +5,41 @@
         <b-form inline>
           <b-form-group label="Host" class="mb-2 mr-sm-2 mb-sm-0">
             <b-form-input v-model="agent.host" class="mb-2 mr-sm-2 mb-sm-0" />
+            <b-form-invalid-feedback :state="validateHostname(agent)"
+              >Hostname must be provided</b-form-invalid-feedback
+            >
           </b-form-group>
 
           <b-form-group label="Port" class="mb-2 mr-sm-2 mb-sm-0">
             <b-form-input v-model="agent.port" class="mb-2 mr-sm-2 mb-sm-0" />
+            <b-form-invalid-feedback :state="validatePort(agent)"
+              >Port must be between 10000 and 65200
+              long.</b-form-invalid-feedback
+            >
           </b-form-group>
 
           <b-form-group label="Enabled" class="mb-2 mr-sm-2 mb-sm-0">
-            <b-form-checkbox v-model="agent.enabled" switch class="mb-2 mr-sm-2 mb-sm-0" />
+            <b-form-checkbox
+              v-model="agent.enabled"
+              switch
+              class="mb-2 mr-sm-2 mb-sm-0"
+            />
           </b-form-group>
-          <b-form-group label="Status" class="mb-2 mr-sm-2 mb-sm-0">{{agent.status}}</b-form-group>
-          <b-button variant="danger">Delete</b-button>
+          <b-form-group label="Status" class="mb-2 mr-sm-2 mb-sm-0">
+            {{ agent.status }}
+          </b-form-group>
+          <b-button variant="success" @click="saveAgent(agent)">Save</b-button>
+          <b-button variant="danger" @click="deleteAgent(agent)"
+            >Delete</b-button
+          >
         </b-form>
       </b-list-group-item>
     </b-list-group>
 
     <b-row>
-      <b-col lg="10" />
+      <b-col lg="11" />
       <b-col lg="1">
-        <b-button variant="success">Save</b-button>
-      </b-col>
-      <b-col lg="1">
-        <b-button variant="danger">Cancel</b-button>
+        <b-button variant="success" @click="addAgent">Add</b-button>
       </b-col>
     </b-row>
   </div>
@@ -34,6 +47,7 @@
 
 <script>
 import { dataStore } from "@/shared/datastoretemp.js";
+const uuid = require("uuid");
 
 export default {
   name: "Agents",
@@ -44,6 +58,46 @@ export default {
   },
   created() {
     this.agents = dataStore.getAgents();
+  },
+  methods: {
+    addAgent() {
+      this.agents.push({
+        agentId: uuid(),
+        host: "",
+        port: 0,
+        enabled: true,
+        status: "none"
+      });
+    },
+    saveAgent() {
+      // Does nothing for now
+    },
+    deleteAgent(agent) {
+      const index = this.agents.findIndex(a => a.agentId == agent.agentId);
+      this.agents.splice(index, 1);
+    },
+    validatePort(agent) {
+      let isNumber = !isNaN(agent.port);
+
+      if (isNumber == false) {
+        return isNumber;
+      }
+
+      let value = parseInt(agent.port);
+
+      if (value < 10000 || value > 65200) {
+        return false;
+      }
+
+      return true;
+    },
+    validateHostname(agent) {
+      if (agent.host.length < 1) {
+        return false;
+      } else {
+        return true;
+      }
+    }
   }
 };
 </script>

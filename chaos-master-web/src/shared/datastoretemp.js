@@ -123,7 +123,83 @@ const getTestGroups = function() {
   return TestGroups;
 };
 
+const TestDetail = {
+  id: 1,
+  name: "some name",
+  description: "lekker description",
+  tests: [
+    {
+      id: 1,
+      name: "test 1",
+      method: "GET",
+      url: "http://localhost:9000/bla",
+      body: "",
+      headers: [
+        {
+          id: "1",
+          name: "Authorization",
+          value: "Basic asdlifjnaklsdnjf"
+        },
+        {
+          id: "2",
+          name: "Content-Type",
+          value: "application/json"
+        }
+      ],
+      responseCode: 200,
+      responseBody: ""
+    },
+    {
+      id: 2,
+      name: "test 1",
+      method: "GET",
+      url: "http://localhost:9000/bla",
+      body: "",
+      headers: [
+        {
+          id: "1",
+          name: "Authorization",
+          value: "Basic asdlifjnaklsdnjf"
+        },
+        {
+          id: "2",
+          name: "Content-Type",
+          value: "application/json"
+        }
+      ],
+      responseCode: 200,
+      responseBody: ""
+    },
+    {
+      id: 3,
+      name: "test 1",
+      method: "GET",
+      url: "http://localhost:9000/bla",
+      body: "",
+      headers: [
+        {
+          id: "1",
+          name: "Authorization",
+          value: "Basic asdlifjnaklsdnjf"
+        },
+        {
+          id: "2",
+          name: "Content-Type",
+          value: "application/json"
+        }
+      ],
+      responseCode: 200,
+      responseBody: ""
+    }
+  ]
+};
+
+const getTestDetail = function() {
+  return TestDetail;
+};
+
 export const dataStore = {
   getAgents,
-  getTestGroups
+  getTestGroups,
+  getTestDetail
 };
