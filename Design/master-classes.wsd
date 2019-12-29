@@ -2,9 +2,15 @@
 
 package Models {
     class TestGroup {
-    int id
-    string Name
-    string Description
+        int id
+        string Name
+        string Description
+        TestCollection[] TestCollections
+    }
+
+    class Header {
+        string Name
+        string Value
     }
 
     class "Test"  {
@@ -15,13 +21,16 @@ package Models {
         Header Headers
         int32 ResponseCode
         string ResponseBody
-        int GroupId
+        
     }
+
+    Test --* Header
 
     class TestCollection {
         string Name
         string Description
         Test[] Tests
+        int GroupId
     }
 
     TestCollection --* Test
@@ -33,6 +42,7 @@ package Models {
         string Host
         int Port
         bool Enabled
+        string Status
     }
 
     class ServiceConfig {
@@ -40,7 +50,14 @@ package Models {
         string PrometheusUrl
         string IdpUrl
         string IdpClientId
+        string MongoDBHost
+        string MongoDBName
+        string MongoDBPort
+        string MongoDBUsername
+        string MongoDBPassword
     }
+
+
 }
 
 package Repositories {
@@ -49,7 +66,7 @@ package Repositories {
         void AddTestGroup(TestGroup)
         void DeleteTestGroup()
         Test[] GetTests(GroupId)
-        Test[] GetAllTests
+        Test[] GetAllTests()
         void AddTest(Test)
         void UpdateTest(Test)
         void DeleteTest(Test)

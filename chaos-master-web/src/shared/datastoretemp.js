@@ -1,41 +1,41 @@
 const Agents = [
   {
-    agentId: "someGuid",
+    id: "someGuid",
     host: "localhost",
     port: 21000,
     enabled: true,
     status: "online"
   },
   {
-    agentId: "someGuid1",
+    id: "someGuid1",
     host: "serverone",
     port: 21000,
     enabled: true,
     status: "online"
   },
   {
-    agentId: "someGuid2",
+    id: "someGuid2",
     host: "serverTwo",
     port: 21000,
     enabled: true,
     status: "online"
   },
   {
-    agentId: "someGuid3",
+    id: "someGuid3",
     host: "three",
     port: 21000,
     enabled: true,
     status: "online"
   },
   {
-    agentId: "someGuid4",
+    id: "someGuid4",
     host: "four",
     port: 21000,
     enabled: true,
     status: "online"
   },
   {
-    agentId: "someGuid5",
+    id: "someGuid5",
     host: "five",
     port: 21000,
     enabled: true,

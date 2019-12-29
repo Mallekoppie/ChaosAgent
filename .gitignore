@@ -27,3 +27,4 @@ chaos.pb.go
 
 ChaosAgent/tests/
 chaos-master-web/package-lock.json
+ChaosMaster/repositories/ChaosMasterConfig.json

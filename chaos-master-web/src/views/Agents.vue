@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-list-group>
-      <b-list-group-item v-for="agent in agents" :key="agent.agentId">
+      <b-list-group-item v-for="agent in agents" :key="agent.id">
         <b-form inline>
           <b-form-group label="Host" class="mb-2 mr-sm-2 mb-sm-0">
             <b-form-input v-model="agent.host" class="mb-2 mr-sm-2 mb-sm-0" />
