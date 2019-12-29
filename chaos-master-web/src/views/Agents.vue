@@ -28,10 +28,23 @@
           <b-form-group label="Status" class="mb-2 mr-sm-2 mb-sm-0">
             {{ agent.status }}
           </b-form-group>
-          <b-button variant="success" @click="saveAgent(agent)">Save</b-button>
-          <b-button variant="danger" @click="deleteAgent(agent)"
-            >Delete</b-button
-          >
+          <b-form-group label="Functions">
+            <b-row>
+              <b-col lg="3">
+                <b-button variant="success" @click="saveAgent(agent)"
+                  >Save</b-button
+                >
+              </b-col>
+              <b-col lg="3">
+                <b-button variant="danger" @click="deleteAgent(agent)"
+                  >Delete</b-button
+                >
+              </b-col>
+              <b-col lg="6">
+                <b-button variant="warning">Stop Tests</b-button>
+              </b-col>
+            </b-row>
+          </b-form-group>
         </b-form>
       </b-list-group-item>
     </b-list-group>

@@ -15,7 +15,12 @@
               <b-form-input v-model="test.name" />
             </b-form-group>
             <b-form-group label="Method">
-              <b-form-select v-model="test.method" :options="httpMethods" size="sm" class="mt-3"></b-form-select>
+              <b-form-select
+                v-model="test.method"
+                :options="httpMethods"
+                size="sm"
+                class="mt-3"
+              ></b-form-select>
             </b-form-group>
             <b-form-group label="Url">
               <b-form-input v-model="test.url" />
@@ -25,7 +30,10 @@
             </b-form-group>
             <b-form-group label="Headers">
               <b-list-group>
-                <b-list-group-item v-for="header in test.headers" :key="header.id">
+                <b-list-group-item
+                  v-for="header in test.headers"
+                  :key="header.id"
+                >
                   <b-form-group label="Name">
                     <b-form-input v-model="header.name" />
                   </b-form-group>
@@ -58,7 +66,15 @@
         <b-button variant="success">Save</b-button>
       </b-col>
       <b-col lg="1">
-        <b-button variant="danger">Cancel</b-button>
+        <router-link
+          tag="button"
+          class="btn btn-danger"
+          :to="{
+            name: 'tests'
+          }"
+        >
+          Cancel
+        </router-link>
       </b-col>
     </b-row>
   </div>
@@ -92,8 +108,9 @@ export default {
     this.testCollection = dataStore.getTestDetail();
   },
   methods: {
-    saveTestCollection() {},
-    cancelTestCollectionChanges() {},
+    saveTestCollection() {
+      // TODO: Api Call to Save
+    },
     addHeaderToTest(test) {
       test.headers.push({
         id: uuid(),

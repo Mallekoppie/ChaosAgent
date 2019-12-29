@@ -8,7 +8,6 @@
 
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
-            <b-nav-item href="/execute">Execute</b-nav-item>
             <b-nav-item href="/tests">Tests</b-nav-item>
             <b-nav-item href="/agents">Agents</b-nav-item>
             <b-nav-item href="http://localhost:3000">Grafana</b-nav-item>
