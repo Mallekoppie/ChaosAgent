@@ -76,7 +76,7 @@ package Repositories {
         ServiceConfig GetServiceConfig()
     }
 
-    class ConsulRepository {
+    class AgentRepository {
         void RegisterAgent(host, port)
         Agent[] GetAgents()
         void AddAgent()

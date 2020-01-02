@@ -1,7 +1,7 @@
 package models
 
 type Test struct {
-	TestId       string   `json:"testId"`
+	ID           string   `bson:"_id" json:"id"`
 	Name         string   `json:"name"`
 	Method       string   `json:"method"`
 	Url          string   `json:"url"`
@@ -12,7 +12,7 @@ type Test struct {
 }
 
 type Header struct {
-	HeaderId string `json:"headerId"`
-	Name     string `json:"name"`
-	Value    string `json:"value"`
+	ID    string `bson:"_id" json:"id"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }

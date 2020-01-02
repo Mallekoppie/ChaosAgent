@@ -11,4 +11,6 @@ type ServiceConfig struct {
 	MongoDBUsername string `json:"mongo_db_username"`
 	MongoDBPassword string `json:"mongo_db_password"`
 	VaultEnabled    bool   `json:"vault_enabled"`
+	ConsulUrl       string `json:"consul_url"`
+	ConsulToken     string `json:"consul_token"`
 }

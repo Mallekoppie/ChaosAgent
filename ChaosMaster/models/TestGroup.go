@@ -1,7 +1,7 @@
 package models
 
 type TestGroup struct {
-	TestGroupId     string           `json:"testGroupId"`
+	ID              string           `bson:"_id" json:"id"`
 	Name            string           `json:"name"`
 	Description     string           `json:"description"`
 	TestCollections []TestCollection `json:"testCollections"`

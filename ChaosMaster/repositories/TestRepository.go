@@ -4,6 +4,7 @@ import (
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
 
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -14,25 +15,26 @@ import (
 )
 
 const (
-	MongoCollectionNameTestGroups  string = "testgroups"
-	MongoTestCollectionIdFieldName string = "testcollections.testCollectionId"
-	MongoTestGroupIdFieldName      string = "testgroupid"
+	MongoCollectionNameTestGroups string = "testgroups"
+	MongoTestGroupIdFieldName     string = "_id"
 )
 
 var (
 	MongoClient   *mongo.Client
 	MongoDBName   string
 	ServiceConfig models.ServiceConfig
+
+	ErrorUpdateCountWrong = errors.New("Incorrect update count")
 )
 
 func init() {
-	ConnectToMongo()
+	connectToMongo()
 
 	ServiceConfig, _ = GetConfig()
 	MongoDBName = ServiceConfig.MongoDBName
 }
 
-func ConnectToMongo() {
+func connectToMongo() {
 	config, err := GetConfig()
 	if err != nil {
 		log.Panicln("Unable to read service config to get mongoDB details: ", err.Error())
@@ -67,6 +69,28 @@ func AddTestGroup(testGroup models.TestGroup) error {
 	return nil
 }
 
+func GetTestGroup(id string) (testGroup models.TestGroup, errr error) {
+	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
+
+	findFilter := bson.D{{MongoTestGroupIdFieldName, id}}
+
+	testGroup = models.TestGroup{}
+
+	result := collection.FindOne(context.TODO(), findFilter)
+	if result.Err() != nil {
+		log.Println("Error retrieving Test Group: ", result.Err().Error())
+		return testGroup, result.Err()
+	}
+
+	err := result.Decode(&testGroup)
+	if err != nil {
+		log.Println("Unable to decode test group: ", err.Error())
+		return testGroup, err
+	}
+
+	return testGroup, nil
+}
+
 func DeleteAllTestGroups() error {
 	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
 
@@ -83,34 +107,48 @@ func DeleteAllTestGroups() error {
 	return nil
 }
 
-func DeleteTestCollection(testGroupId string, testCollectionId string) error {
+func UpdateTestGroup(testGroup models.TestGroup) error {
 	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
 
-	findFilter := bson.D{{MongoTestGroupIdFieldName, testGroupId}}
+	findFilter := bson.M{MongoTestGroupIdFieldName: bson.M{"$eq": testGroup.ID}}
 
-	findResult := collection.FindOneAndDelete(context.TODO(), findFilter)
-	if findResult.Err() != nil {
-		log.Println("Unable to find testgroup to delete: ", findResult.Err().Error())
-		return findResult.Err()
-	}
-
-	testGroup := models.TestGroup{}
-	err := findResult.Decode(&testGroup)
+	result, err := collection.ReplaceOne(context.TODO(), findFilter, testGroup)
 	if err != nil {
-		log.Println("Unable to decode test group for find: ", err.Error())
+		log.Println("Error updating record: ", err.Error())
 		return err
 	}
 
-	var removeId int
-	for id := range testGroup.TestCollections {
-		item := testGroup.TestCollections[id]
-		if item.TestCollectionId == testCollectionId {
-			removeId = id
-			break
-		}
+	if result.ModifiedCount != 1 {
+		log.Println("Update failed")
+		return ErrorUpdateCountWrong
 	}
 
-	testGroup.TestCollections = append(testGroup.TestCollections[:removeId], testGroup.TestCollections[removeId+1:]...)
+	return nil
+}
 
-	return AddTestGroup(testGroup)
+func GetAllTestGroups() (testGroups []models.TestGroup, err error) {
+	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
+
+	cursor, err := collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Println("Error retrieving all test groups: ", err.Error())
+		return nil, err
+	}
+
+	testGroups = make([]models.TestGroup, 0)
+
+	defer cursor.Close(context.TODO())
+	for cursor.Next(context.TODO()) {
+		group := models.TestGroup{}
+
+		err = cursor.Decode(&group)
+		if err != nil {
+			log.Println("Error decoding testgroup: ", err.Error())
+			return nil, err
+		}
+
+		testGroups = append(testGroups, group)
+	}
+
+	return testGroups, nil
 }

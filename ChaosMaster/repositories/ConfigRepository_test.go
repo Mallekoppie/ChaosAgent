@@ -12,6 +12,8 @@ func TestWriteAndReadConfig(t *testing.T) {
 		MongoDBHost:   "localhost",
 		MongoDBPort:   27017,
 		MongoDBName:   "UnitTest",
+		ConsulUrl:     "http://127.0.0.1:8500",
+		ConsulToken:   "none",
 	}
 
 	err := WriteConfig(config)
