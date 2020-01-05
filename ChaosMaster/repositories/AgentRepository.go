@@ -67,7 +67,7 @@ func createConsulRequest(port int, host string, enabled bool, serviceName string
 
 	consulRequest.Service.Service = serviceName
 	consulRequest.Service.Port = port
-	consulRequest.Node = fmt.Sprintf("%v:%v", serviceName, host)
+	consulRequest.Node = fmt.Sprintf("%v:%v:%v", serviceName, host, port)
 	consulRequest.NodeMeta.Enabled = strconv.FormatBool(enabled)
 	consulRequest.NodeMeta.Id = id
 	consulRequest.Address = host
