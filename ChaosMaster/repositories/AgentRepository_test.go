@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+const (
+	ServiceName string = "ChaosAgent"
+)
+
 func TestConsulAgentRegistration(t *testing.T) {
 	agent := models.Agent{
 		Host:    "unittesthost",
@@ -12,7 +16,7 @@ func TestConsulAgentRegistration(t *testing.T) {
 		Enabled: true,
 	}
 
-	err := UpdateChaosAgent(agent)
+	err := UpdateChaosAgent(agent, ServiceName)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -26,13 +30,13 @@ func TestConsulAgentDelete(t *testing.T) {
 		Enabled: true,
 	}
 
-	err := UpdateChaosAgent(agent)
+	err := UpdateChaosAgent(agent, ServiceName)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
 	}
 
-	err = DeleteChaosAgent(agent)
+	err = DeleteChaosAgent(agent, ServiceName)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -46,7 +50,7 @@ func TestConsulAgentDisable(t *testing.T) {
 		Enabled: true,
 	}
 
-	err := UpdateChaosAgent(agent)
+	err := UpdateChaosAgent(agent, ServiceName)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -54,7 +58,7 @@ func TestConsulAgentDisable(t *testing.T) {
 
 	agent.Enabled = false
 
-	err = UpdateChaosAgent(agent)
+	err = UpdateChaosAgent(agent, ServiceName)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -62,7 +66,7 @@ func TestConsulAgentDisable(t *testing.T) {
 }
 
 func TestGetAllAgents(t *testing.T) {
-	agents, err := GetAllAgents()
+	agents, err := GetAllAgents(ServiceName)
 	if err != nil {
 		t.Fatal("Unable to retrieve all agents: ", err.Error())
 		t.Fail()

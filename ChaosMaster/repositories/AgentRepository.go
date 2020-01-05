@@ -25,9 +25,8 @@ var (
 )
 
 const (
-	MaxIdleConnections     int    = 20
-	RequestTimeout         int    = 30
-	ConsulAgentServiceName string = "ChaosAgent"
+	MaxIdleConnections int = 20
+	RequestTimeout     int = 30
 )
 
 // init HTTPClient
@@ -52,7 +51,7 @@ func createHTTPClient() *http.Client {
 	return client
 }
 
-func createConsulRequest(port int, host string, enabled bool) (request models.ConsulRequest, err error) {
+func createConsulRequest(port int, host string, enabled bool, serviceName string) (request models.ConsulRequest, err error) {
 	consulRequest := models.ConsulRequest{}
 
 	if port < 1024 || port > 65200 {
@@ -65,7 +64,7 @@ func createConsulRequest(port int, host string, enabled bool) (request models.Co
 		return consulRequest, ErrorConsulHostIncorrect
 	}
 
-	consulRequest.Service.Service = ConsulAgentServiceName
+	consulRequest.Service.Service = serviceName
 	consulRequest.Service.Port = port
 	consulRequest.Node = fmt.Sprintf("%v:%v", host, port)
 	consulRequest.NodeMeta.Enabled = strconv.FormatBool(enabled)
@@ -74,9 +73,9 @@ func createConsulRequest(port int, host string, enabled bool) (request models.Co
 	return consulRequest, nil
 }
 
-func UpdateChaosAgent(agent models.Agent) error {
+func UpdateChaosAgent(agent models.Agent, serviceName string) error {
 
-	requestObject, err := createConsulRequest(agent.Port, agent.Host, agent.Enabled)
+	requestObject, err := createConsulRequest(agent.Port, agent.Host, agent.Enabled, serviceName)
 	if err != nil {
 		return err
 	}
@@ -107,8 +106,8 @@ func UpdateChaosAgent(agent models.Agent) error {
 	return nil
 }
 
-func DeleteChaosAgent(agent models.Agent) error {
-	requestObject, err := createConsulRequest(agent.Port, agent.Host, agent.Enabled)
+func DeleteChaosAgent(agent models.Agent, serviceName string) error {
+	requestObject, err := createConsulRequest(agent.Port, agent.Host, agent.Enabled, serviceName)
 	if err != nil {
 		return err
 	}
@@ -139,9 +138,9 @@ func DeleteChaosAgent(agent models.Agent) error {
 	return nil
 }
 
-func GetAllAgents() (agents []models.Agent, err error) {
+func GetAllAgents(serviceName string) (agents []models.Agent, err error) {
 
-	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%v/v1/catalog/service/ChaosAgent", ConsulUrl), nil)
+	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%v/v1/catalog/service/%v", ConsulUrl, serviceName), nil)
 	if err != nil {
 		log.Println("Error creating request to retrieve all consul agents: ", err.Error())
 		return nil, err
