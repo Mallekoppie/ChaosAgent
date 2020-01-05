@@ -9,5 +9,6 @@ type ConsulRequest struct {
 	Address  string `json:"address"`
 	NodeMeta struct {
 		Enabled string `json:"enabled"`
+		Id      string `json:"id"`
 	} `json:"NodeMeta"`
 }

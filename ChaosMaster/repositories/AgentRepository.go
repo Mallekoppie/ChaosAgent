@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	//	"github.com/google/uuid"
 )
 
 var (
@@ -51,7 +52,7 @@ func createHTTPClient() *http.Client {
 	return client
 }
 
-func createConsulRequest(port int, host string, enabled bool, serviceName string) (request models.ConsulRequest, err error) {
+func createConsulRequest(port int, host string, enabled bool, serviceName string, id string) (request models.ConsulRequest, err error) {
 	consulRequest := models.ConsulRequest{}
 
 	if port < 1024 || port > 65200 {
@@ -66,16 +67,17 @@ func createConsulRequest(port int, host string, enabled bool, serviceName string
 
 	consulRequest.Service.Service = serviceName
 	consulRequest.Service.Port = port
-	consulRequest.Node = fmt.Sprintf("%v:%v", host, port)
+	consulRequest.Node = fmt.Sprintf("%v:%v", serviceName, host)
 	consulRequest.NodeMeta.Enabled = strconv.FormatBool(enabled)
+	consulRequest.NodeMeta.Id = id
 	consulRequest.Address = host
 
 	return consulRequest, nil
 }
 
-func UpdateChaosAgent(agent models.Agent, serviceName string) error {
+func UpdateChaosAgent(agent models.Agent, serviceName string, port int) error {
 
-	requestObject, err := createConsulRequest(agent.Port, agent.Host, agent.Enabled, serviceName)
+	requestObject, err := createConsulRequest(port, agent.Host, agent.Enabled, serviceName, agent.Id)
 	if err != nil {
 		return err
 	}
@@ -107,7 +109,7 @@ func UpdateChaosAgent(agent models.Agent, serviceName string) error {
 }
 
 func DeleteChaosAgent(agent models.Agent, serviceName string) error {
-	requestObject, err := createConsulRequest(agent.Port, agent.Host, agent.Enabled, serviceName)
+	requestObject, err := createConsulRequest(agent.Port, agent.Host, agent.Enabled, serviceName, agent.Id)
 	if err != nil {
 		return err
 	}
@@ -172,7 +174,9 @@ func GetAllAgents(serviceName string) (agents []models.Agent, err error) {
 
 	agents = make([]models.Agent, 0)
 	for i := range consulAgentResponse {
+
 		agent := models.Agent{
+			Id:   consulAgentResponse[i].NodeMeta.Id,
 			Host: consulAgentResponse[i].Address,
 			Port: consulAgentResponse[i].ServicePort,
 		}
@@ -180,9 +184,9 @@ func GetAllAgents(serviceName string) (agents []models.Agent, err error) {
 		if err != nil {
 			log.Println("unable to parse agent enabled status: ", err.Error())
 			enabled = false
+		} else {
+			agent.Enabled = enabled
 		}
-
-		agent.Enabled = enabled
 
 		agents = append(agents, agent)
 	}

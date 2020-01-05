@@ -4,14 +4,14 @@ import (
 	"log"
 )
 
-func Info(message string) {
-	log.Println("INFO ", message)
+func Info(v ...interface{}) {
+	log.Println("INFO ", v)
 }
 
-func Warn(message string) {
-	log.Println("WARN ", message)
+func Warn(v ...interface{}) {
+	log.Println("WARN ", v)
 }
 
-func Error(message string) {
-	log.Println("ERROR ", message)
+func Error(v ...interface{}) {
+	log.Println("ERROR ", v)
 }
