@@ -2,6 +2,7 @@ package manager
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -11,18 +12,88 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+
+	"mallekoppie/ChaosGenerator/ChaosMaster/repositories"
+	"mallekoppie/ChaosGenerator/ChaosMaster/util/logger"
 )
 
-func GetConfig() (ChaosMasterConfig, error) {
-	configuration := ChaosMasterConfig{}
-	err := gonfig.GetConf("ChaosMasterConfig.json", &configuration)
+var (
+	Config                 ChaosMasterAgents
+	ErrorNoAgentWithThatId = errors.New("No agent with that Id")
+)
+
+const (
+	consulAgentServiceName string = "ChaosAgent"
+)
+
+type ChaosMasterAgents struct {
+	Agents []ChaosAgent `json:"agents,omitempty"`
+}
+
+type ChaosAgent struct {
+	Id     string
+	Name   string `json:"name"`
+	Url    string `json:"url"`
+	Client pb.ChaosAgentClient
+	Ctx    context.Context
+}
+
+func init() {
+
+	Config, err := GetChaosMasterAgents()
 
 	if err != nil {
-		log.Print("Error reading config: %v", err)
+		fmt.Println("Error retrieving config: ", err)
+		return
+	}
+
+	logger.Info("Initializing agents")
+	for i := 0; i < len(Config.Agents); i++ {
+		err := Config.Agents[i].Init()
+		if err != nil {
+			logger.Error("Unable to initialize agent: ", err.Error())
+		}
+	}
+	count := len(Config.Agents)
+	logger.Info("Config count during initialization: ", count)
+	logger.Info("Initialized agents")
+}
+
+func GetChaosMasterAgents() (ChaosMasterAgents, error) {
+	configuration := ChaosMasterAgents{}
+	agents, err := repositories.GetAllAgents(consulAgentServiceName)
+	if err != nil {
+		logger.Error("Unable to get agent configuration: ", err.Error())
 		return configuration, err
 	}
 
+	for index := range agents {
+		agent := agents[index]
+		c := ChaosAgent{
+			Id:   agent.Id,
+			Name: agent.Host,
+			Url:  fmt.Sprintf("%v:%v", agent.Host, agent.Port),
+		}
+		configuration.Agents = append(configuration.Agents, c)
+	}
+
 	return configuration, nil
+}
+
+func GetAgent(id string) (agent ChaosAgent, err error) {
+	nulAgent := ChaosAgent{}
+	log.Println("Before loop")
+	result := len(Config.Agents)
+	log.Println("Config agents array length: ", result)
+	for i := range Config.Agents {
+		log.Println("inside loop")
+		log.Printf("Comparing %v to %v", Config.Agents[i].Id, id)
+		if Config.Agents[i].Id == id {
+			return Config.Agents[i], nil
+		}
+	}
+
+	return nulAgent, ErrorNoAgentWithThatId
 }
 
 func GetTest(testName string) (pb.TestCollection, error) {
@@ -30,22 +101,11 @@ func GetTest(testName string) (pb.TestCollection, error) {
 	err := gonfig.GetConf("./tests/"+testName+".json", &configuration)
 
 	if err != nil {
-		log.Print("Error reading config: %v", err)
+		log.Printf("Error reading config: %v", err)
 		return configuration, err
 	}
 
 	return configuration, nil
-}
-
-type ChaosMasterConfig struct {
-	Agents []ChaosAgent `json:"agents,omitempty"`
-}
-
-type ChaosAgent struct {
-	Name   string `json:"name"`
-	Url    string `json:"url"`
-	Client pb.ChaosAgentClient
-	Ctx    context.Context
 }
 
 func (c *ChaosAgent) Init() error {
@@ -113,7 +173,7 @@ func (c *ChaosAgent) AddTest(test pb.TestCollection) {
 	}
 
 	if resp != nil && resp.Result != true {
-		fmt.Printf("Error adding test for %v . Result: ", c.Name, resp.Result)
+		fmt.Printf("Error adding test for %v . Result: %v", c.Name, resp.Result)
 	}
 }
 
@@ -125,7 +185,7 @@ func (c *ChaosAgent) StartTest(testParameters pb.TestParameters) {
 	}
 
 	if resp != nil && resp.Result != true {
-		fmt.Printf("Error starting test for %v . Result: ", c.Name, resp.Result)
+		fmt.Printf("Error starting test for %v . Result: %v", c.Name, resp.Result)
 	}
 }
 
@@ -137,12 +197,12 @@ func (c *ChaosAgent) UpdateTest(testParameters pb.TestParameters) {
 	}
 
 	if resp != nil && resp.Result != true {
-		fmt.Printf("Error updating test for %v . Result: ", c.Name, resp.Result)
+		fmt.Printf("Error updating test for %v . Result: %v", c.Name, resp.Result)
 	}
 }
 
 func (c *ChaosAgent) StopTest() {
-	if c != nil && c.Client != nil && c.Client != nil {
+	if c != nil && c.Client != nil {
 		resp, err := c.Client.StopTestRun(c.Ctx, &pb.StopTestRequest{})
 
 		if err != nil {
@@ -150,7 +210,7 @@ func (c *ChaosAgent) StopTest() {
 		}
 
 		if resp != nil && resp.Result != true {
-			fmt.Printf("Error stopping test for %v . Result: ", c.Name, resp.Result)
+			fmt.Printf("Error stopping test for %v . Result: %v", c.Name, resp.Result)
 		}
 	}
 }
@@ -174,4 +234,8 @@ func (c *ChaosAgent) DeleteTests() {
 	}
 
 	fmt.Println("Tests cleared on agent: ", c.Url)
+}
+
+func (c *ChaosAgent) Shutdown() {
+
 }

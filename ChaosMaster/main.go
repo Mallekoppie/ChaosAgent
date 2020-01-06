@@ -8,8 +8,6 @@ import (
 )
 
 func main() {
-	//manager.RunUI()
-
 	router := routes.NewRouter()
 
 	http.ListenAndServe("0.0.0.0:9000", router)

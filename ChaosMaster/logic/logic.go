@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"mallekoppie/ChaosGenerator/ChaosMaster/manager"
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
 	"mallekoppie/ChaosGenerator/ChaosMaster/repositories"
 	"mallekoppie/ChaosGenerator/ChaosMaster/util/logger"
@@ -28,11 +29,30 @@ func GetAllAgents() (agents []models.Agent, err error) {
 
 	// Add metrics port to agent
 	for index := range agents {
-
 		for metricIndex := range agentmetrics {
 			if agents[index].Id == agentmetrics[metricIndex].Id {
 				agents[index].MetricsPort = agentmetrics[metricIndex].Port
 			}
+		}
+	}
+
+	// Get Agent status
+	for index := range agents {
+		agent := agents[index]
+
+		chaosAgent, err := manager.GetAgent(agent.Id)
+		if err != nil {
+			logger.Error("Unable to get agent for Id: ", agent.Id)
+			agent.Status = "error"
+			continue
+		}
+
+		alive := chaosAgent.IsAlive()
+
+		if alive {
+			agent.Status = "online"
+		} else {
+			agent.Status = "offline"
 		}
 	}
 
