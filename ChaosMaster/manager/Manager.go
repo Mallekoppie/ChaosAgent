@@ -18,17 +18,13 @@ import (
 )
 
 var (
-	Config                 ChaosMasterAgents
+	agents                 []ChaosAgent
 	ErrorNoAgentWithThatId = errors.New("No agent with that Id")
 )
 
 const (
 	consulAgentServiceName string = "ChaosAgent"
 )
-
-type ChaosMasterAgents struct {
-	Agents []ChaosAgent `json:"agents,omitempty"`
-}
 
 type ChaosAgent struct {
 	Id     string
@@ -39,8 +35,20 @@ type ChaosAgent struct {
 }
 
 func init() {
+	initializeAgents()
+}
 
-	Config, err := GetChaosMasterAgents()
+func getAgents() []ChaosAgent {
+	if len(agents) < 1 {
+		logger.Info("No agents. Re-initializing")
+		initializeAgents()
+	}
+
+	return agents
+}
+
+func initializeAgents() {
+	err := GetChaosMasterAgents()
 
 	if err != nil {
 		fmt.Println("Error retrieving config: ", err)
@@ -48,48 +56,51 @@ func init() {
 	}
 
 	logger.Info("Initializing agents")
-	for i := 0; i < len(Config.Agents); i++ {
-		err := Config.Agents[i].Init()
+	for i := range agents {
+		err := agents[i].Init()
 		if err != nil {
 			logger.Error("Unable to initialize agent: ", err.Error())
 		}
 	}
-	count := len(Config.Agents)
+	count := len(agents)
 	logger.Info("Config count during initialization: ", count)
 	logger.Info("Initialized agents")
 }
 
-func GetChaosMasterAgents() (ChaosMasterAgents, error) {
-	configuration := ChaosMasterAgents{}
-	agents, err := repositories.GetAllAgents(consulAgentServiceName)
+func GetChaosMasterAgents() error {
+	agents = make([]ChaosAgent, 0)
+	consulAgents, err := repositories.GetAllAgents(consulAgentServiceName)
 	if err != nil {
 		logger.Error("Unable to get agent configuration: ", err.Error())
-		return configuration, err
+		return err
 	}
 
-	for index := range agents {
-		agent := agents[index]
+	for index := range consulAgents {
+		agent := consulAgents[index]
 		c := ChaosAgent{
 			Id:   agent.Id,
 			Name: agent.Host,
 			Url:  fmt.Sprintf("%v:%v", agent.Host, agent.Port),
 		}
-		configuration.Agents = append(configuration.Agents, c)
+		agents = append(agents, c)
 	}
 
-	return configuration, nil
+	return nil
 }
 
 func GetAgent(id string) (agent ChaosAgent, err error) {
 	nulAgent := ChaosAgent{}
-	log.Println("Before loop")
-	result := len(Config.Agents)
-	log.Println("Config agents array length: ", result)
-	for i := range Config.Agents {
+
+	agents := getAgents()
+	number := len(agents)
+	logger.Info("Number of agents returned: ", number)
+
+	for i := range agents {
 		log.Println("inside loop")
-		log.Printf("Comparing %v to %v", Config.Agents[i].Id, id)
-		if Config.Agents[i].Id == id {
-			return Config.Agents[i], nil
+		log.Printf("Comparing %v to %v", agents[i].Id, id)
+		if agents[i].Id == id {
+			logger.Info("Agent Found")
+			return agents[i], nil
 		}
 	}
 

@@ -49,10 +49,14 @@ func GetAllAgents() (agents []models.Agent, err error) {
 
 		alive := chaosAgent.IsAlive()
 
-		if alive {
-			agent.Status = "online"
+		logger.Info("Agent IsAlive response: ", alive)
+
+		if alive == true {
+			logger.Info("Setting online")
+			agents[index].Status = "online"
 		} else {
-			agent.Status = "offline"
+			logger.Info("Setting offline")
+			agents[index].Status = "offline"
 		}
 	}
 
