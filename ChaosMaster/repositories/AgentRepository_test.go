@@ -16,7 +16,7 @@ func TestConsulAgentRegistration(t *testing.T) {
 		Enabled: true,
 	}
 
-	err := UpdateChaosAgent(agent, ServiceName)
+	err := UpdateChaosAgent(agent, ServiceName, 11000)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -30,7 +30,7 @@ func TestConsulAgentDelete(t *testing.T) {
 		Enabled: true,
 	}
 
-	err := UpdateChaosAgent(agent, ServiceName)
+	err := UpdateChaosAgent(agent, ServiceName, 11000)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -50,7 +50,7 @@ func TestConsulAgentDisable(t *testing.T) {
 		Enabled: true,
 	}
 
-	err := UpdateChaosAgent(agent, ServiceName)
+	err := UpdateChaosAgent(agent, ServiceName, 11000)
 	if err != nil {
 		t.Error(err)
 		t.Fail()
@@ -58,7 +58,7 @@ func TestConsulAgentDisable(t *testing.T) {
 
 	agent.Enabled = false
 
-	err = UpdateChaosAgent(agent, ServiceName)
+	err = UpdateChaosAgent(agent, ServiceName, 11000)
 	if err != nil {
 		t.Error(err)
 		t.Fail()

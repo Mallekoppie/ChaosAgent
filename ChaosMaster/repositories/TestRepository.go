@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
+	"mallekoppie/ChaosGenerator/ChaosMaster/util/logger"
 
 	"context"
 	"errors"
@@ -15,23 +16,26 @@ import (
 )
 
 const (
-	MongoCollectionNameTestGroups string = "testgroups"
-	MongoTestGroupIdFieldName     string = "_id"
+	mongoCollectionNameTestGroups      string = "testgroups"
+	mongoCollectionNameTestCollections string = "testcollections"
+	mongoIdFieldName                   string = "_id"
+	mongoGroupIdFieldName              string = "groupid"
 )
 
 var (
-	MongoClient   *mongo.Client
-	MongoDBName   string
-	ServiceConfig models.ServiceConfig
+	mongoClient   *mongo.Client
+	mongoDBName   string
+	serviceConfig models.ServiceConfig
 
-	ErrorUpdateCountWrong = errors.New("Incorrect update count")
+	ErrUpdateCountWrong                 = errors.New("Incorrect update count")
+	ErrNoGroupExistsForTestCollectionId = errors.New("No group exists for ID")
 )
 
 func init() {
 	connectToMongo()
 
-	ServiceConfig, _ = GetConfig()
-	MongoDBName = ServiceConfig.MongoDBName
+	serviceConfig, _ = GetConfig()
+	mongoDBName = serviceConfig.MongoDBName
 }
 
 func connectToMongo() {
@@ -42,13 +46,13 @@ func connectToMongo() {
 	}
 
 	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb://%v:%v", config.MongoDBHost, config.MongoDBPort))
-	MongoClient, err = mongo.Connect(context.TODO(), clientOptions)
+	mongoClient, err = mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Panicln("Unable to connect to mongo:", err.Error())
 		os.Exit(1)
 	}
 
-	err = MongoClient.Ping(context.TODO(), nil)
+	err = mongoClient.Ping(context.TODO(), nil)
 	if err != nil {
 		log.Panicln("Unable to ping mongodb: ", err.Error())
 		os.Exit(1)
@@ -58,7 +62,9 @@ func connectToMongo() {
 }
 
 func AddTestGroup(testGroup models.TestGroup) error {
-	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestGroups)
+	testCollections := testGroup.TestCollections
+	testGroup.TestCollections = nil
 
 	_, err := collection.InsertOne(context.TODO(), testGroup)
 	if err != nil {
@@ -66,13 +72,24 @@ func AddTestGroup(testGroup models.TestGroup) error {
 		return err
 	}
 
+	for index := range testCollections {
+		item := testCollections[index]
+		item.GroupId = testGroup.ID
+
+		err = AddTestCollection(item)
+		if err != nil {
+			logger.Error("Error saving test collection for test group: ", err.Error())
+			return err
+		}
+	}
+
 	return nil
 }
 
 func GetTestGroup(id string) (testGroup models.TestGroup, errr error) {
-	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestGroups)
 
-	findFilter := bson.D{{MongoTestGroupIdFieldName, id}}
+	findFilter := bson.D{{mongoIdFieldName, id}}
 
 	testGroup = models.TestGroup{}
 
@@ -88,11 +105,19 @@ func GetTestGroup(id string) (testGroup models.TestGroup, errr error) {
 		return testGroup, err
 	}
 
+	testCollections, err := GetTestCollectionsForGroup(testGroup.ID)
+	if err != nil {
+		logger.Error("unable to retrieve test collections for Test Group: ", err.Error())
+
+	} else {
+		testGroup.TestCollections = testCollections
+	}
+
 	return testGroup, nil
 }
 
 func DeleteAllTestGroups() error {
-	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestGroups)
 
 	filter := bson.D{}
 
@@ -102,15 +127,74 @@ func DeleteAllTestGroups() error {
 		return err
 	}
 
+	testCollection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestGroups)
+
+	_, err = testCollection.DeleteMany(context.TODO(), filter)
+	if err != nil {
+		log.Println("Failed to delete all test collections: ", err.Error())
+		return err
+	}
+
 	log.Println("Number of test groups deleted: ", result.DeletedCount)
 
 	return nil
 }
 
-func UpdateTestGroup(testGroup models.TestGroup) error {
-	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
+func DeleteTestGroup(id string) error {
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestGroups)
 
-	findFilter := bson.M{MongoTestGroupIdFieldName: bson.M{"$eq": testGroup.ID}}
+	filter := bson.D{{mongoIdFieldName, id}}
+
+	result, err := collection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		logger.Error("Unable to delete record:", err.Error())
+		return err
+	}
+
+	if result.DeletedCount != 1 {
+		logger.Error("Delete count incorrect: ", result.DeletedCount)
+	}
+
+	testCollection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestCollections)
+
+	testCollectionFilter := bson.D{{mongoIdFieldName, id}}
+
+	collectionResult, err := testCollection.DeleteMany(context.TODO(), testCollectionFilter)
+	if err != nil {
+		logger.Error("Error when deleting Test Collections linked to Test Group: ", err.Error())
+		return err
+	}
+
+	logger.Info("Test Collections deleted for test group: ", collectionResult.DeletedCount)
+
+	return nil
+}
+
+func DeleteTestCollection(id string) error {
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestCollections)
+
+	filter := bson.D{{mongoIdFieldName, id}}
+
+	result, err := collection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		logger.Error("Unable to delete record:", err.Error())
+		return err
+	}
+
+	if result.DeletedCount != 1 {
+		logger.Error("Delete count incorrect: ", result.DeletedCount)
+	}
+
+	return nil
+}
+
+func UpdateTestGroup(testGroup models.TestGroup) error {
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestGroups)
+
+	testCollections := testGroup.TestCollections
+	testGroup.TestCollections = nil
+
+	findFilter := bson.M{mongoIdFieldName: bson.M{"$eq": testGroup.ID}}
 
 	result, err := collection.ReplaceOne(context.TODO(), findFilter, testGroup)
 	if err != nil {
@@ -119,15 +203,43 @@ func UpdateTestGroup(testGroup models.TestGroup) error {
 	}
 
 	if result.ModifiedCount != 1 {
-		log.Println("Update failed")
-		return ErrorUpdateCountWrong
+		log.Println("TestGroup update failed")
+		return ErrUpdateCountWrong
+	}
+
+	for index := range testCollections {
+		col := testCollections[index]
+
+		err = UpdateTestCollection(col)
+		if err != nil {
+			logger.Error("Unable to update TestCollection: ", err.Error())
+			return err
+		}
+	}
+
+	return nil
+}
+
+func UpdateTestCollection(col models.TestCollection) error {
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestCollections)
+
+	findFilter := bson.M{mongoIdFieldName: bson.M{"$eq": col.ID}}
+
+	result, err := collection.ReplaceOne(context.TODO(), findFilter, col)
+	if err != nil {
+		logger.Error("unable to replace Test Collection: ", err.Error())
+		return err
+	}
+
+	if result.ModifiedCount != 1 {
+		log.Println("Test Collection update failed for: ", col.ID)
 	}
 
 	return nil
 }
 
 func GetAllTestGroups() (testGroups []models.TestGroup, err error) {
-	collection := MongoClient.Database(MongoDBName).Collection(MongoCollectionNameTestGroups)
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestGroups)
 
 	cursor, err := collection.Find(context.TODO(), bson.D{})
 	if err != nil {
@@ -147,8 +259,69 @@ func GetAllTestGroups() (testGroups []models.TestGroup, err error) {
 			return nil, err
 		}
 
+		result, err := GetTestCollectionsForGroup(group.ID)
+		if err != nil {
+			logger.Error("Unable to retrieve TestCollections for Test Group: ", err.Error())
+		} else {
+			group.TestCollections = result
+		}
+
 		testGroups = append(testGroups, group)
 	}
 
 	return testGroups, nil
+}
+
+func AddTestCollection(tests models.TestCollection) error {
+	groupCollection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestGroups)
+
+	findGroupFilter := bson.D{{mongoIdFieldName, tests.GroupId}}
+
+	groupResult := groupCollection.FindOne(context.TODO(), findGroupFilter)
+	if groupResult.Err() != nil {
+		if groupResult.Err() == mongo.ErrNoDocuments {
+			logger.Error("The Test Group must be created before the test collection")
+			return ErrNoGroupExistsForTestCollectionId
+		} else {
+			logger.Error("Error finding group for test collection: ", groupResult.Err().Error())
+			return groupResult.Err()
+		}
+	}
+
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestCollections)
+
+	_, err := collection.InsertOne(context.TODO(), tests)
+	if err != nil {
+		logger.Error("Error inserting document: ", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func GetTestCollectionsForGroup(id string) (tests []models.TestCollection, err error) {
+	tests = make([]models.TestCollection, 0)
+	collection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestCollections)
+
+	findFilter := bson.D{{mongoGroupIdFieldName, id}}
+
+	cursor, err := collection.Find(context.TODO(), findFilter)
+	if err != nil {
+		logger.Error("Unable to retrieve test collections for Test Group: ", err.Error())
+		return tests, err
+	}
+
+	defer cursor.Close(context.TODO())
+	for cursor.Next(context.TODO()) {
+		test := models.TestCollection{}
+		err = cursor.Decode(&test)
+		if err != nil {
+			logger.Error("Unable to decode test collection: ", err.Error())
+			return tests, err
+		}
+
+		tests = append(tests, test)
+	}
+
+	return tests, nil
 }

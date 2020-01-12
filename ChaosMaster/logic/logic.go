@@ -102,3 +102,51 @@ func DeleteAgent(agent models.Agent) error {
 	return nil
 
 }
+
+func GetAllTestGroups() (tests []models.TestGroup, err error) {
+	tests, err = repositories.GetAllTestGroups()
+	if err != nil {
+		return tests, err
+	}
+
+	logger.Info("Tests Returned: ", tests)
+
+	return tests, nil
+}
+
+func CreateTestGroup(group models.TestGroup) error {
+	err := repositories.AddTestGroup(group)
+	if err != nil {
+		logger.Error("Unable to create new TestGroup: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func UpdateTestGroup(group models.TestGroup) error {
+	err := repositories.UpdateTestGroup(group)
+	return err
+}
+
+func DeleteTestGroup(id string) error {
+	err := repositories.DeleteTestGroup(id)
+	return err
+}
+
+func AddTestCollection(test models.TestCollection) error {
+	err := repositories.AddTestCollection(test)
+
+	return err
+}
+
+func UpdateTestCollection(test models.TestCollection) error {
+	err := repositories.UpdateTestCollection(test)
+
+	return err
+}
+
+func DeleteTestCollection(id string) error {
+	err := repositories.DeleteTestCollection(id)
+	return err
+}

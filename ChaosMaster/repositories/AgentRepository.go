@@ -20,9 +20,9 @@ var (
 	DefaultTLSConfig                 = &tls.Config{InsecureSkipVerify: true}
 	ConsulUrl                        string
 	ConsulToken                      string
-	ErrorConsulPortIncorrect         = errors.New("Consul port incorrect")
-	ErrorConsulHostIncorrect         = errors.New("Consul host incorrect")
-	ErrorConsulResponseCodeIncorrect = errors.New("Consul returned incorrect response code")
+	ErrConsulPortIncorrect         = errors.New("Consul port incorrect")
+	ErrConsulHostIncorrect         = errors.New("Consul host incorrect")
+	ErrConsulResponseCodeIncorrect = errors.New("Consul returned incorrect response code")
 )
 
 const (
@@ -34,9 +34,9 @@ const (
 func init() {
 	httpClient = createHTTPClient()
 
-	ServiceConfig, _ = GetConfig()
-	ConsulUrl = ServiceConfig.ConsulUrl
-	ConsulToken = ServiceConfig.ConsulToken
+	serviceConfig, _ = GetConfig()
+	ConsulUrl = serviceConfig.ConsulUrl
+	ConsulToken = serviceConfig.ConsulToken
 }
 
 // createHTTPClient for connection re-use
@@ -57,12 +57,12 @@ func createConsulRequest(port int, host string, enabled bool, serviceName string
 
 	if port < 1024 || port > 65200 {
 		log.Println("Bad port value for consul request: ", port)
-		return consulRequest, ErrorConsulPortIncorrect
+		return consulRequest, ErrConsulPortIncorrect
 	}
 
 	if len(host) < 1 {
 		log.Println("Bad host value for consul request: ", host)
-		return consulRequest, ErrorConsulHostIncorrect
+		return consulRequest, ErrConsulHostIncorrect
 	}
 
 	consulRequest.Service.Service = serviceName
@@ -102,7 +102,7 @@ func UpdateChaosAgent(agent models.Agent, serviceName string, port int) error {
 
 	if response.StatusCode != http.StatusOK {
 		log.Println("Incorrect response code from consul for agent registration: ", response.StatusCode)
-		return ErrorConsulResponseCodeIncorrect
+		return ErrConsulResponseCodeIncorrect
 	}
 
 	return nil
@@ -134,7 +134,7 @@ func DeleteChaosAgent(agent models.Agent, serviceName string) error {
 
 	if response.StatusCode != http.StatusOK {
 		log.Println("Incorrect response code from consul for agent registration: ", response.StatusCode)
-		return ErrorConsulResponseCodeIncorrect
+		return ErrConsulResponseCodeIncorrect
 	}
 
 	return nil
@@ -156,7 +156,7 @@ func GetAllAgents(serviceName string) (agents []models.Agent, err error) {
 
 	if response.StatusCode != http.StatusOK {
 		log.Println("Consul returned incorrect response code. Expected 200 but received ", response.StatusCode)
-		return nil, ErrorConsulResponseCodeIncorrect
+		return nil, ErrConsulResponseCodeIncorrect
 	}
 
 	defer response.Body.Close()

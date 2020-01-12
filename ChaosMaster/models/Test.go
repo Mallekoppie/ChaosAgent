@@ -7,7 +7,7 @@ type Test struct {
 	Url          string   `json:"url"`
 	Body         string   `json:"body"`
 	Headers      []Header `json:"headers"`
-	ResponseCode int      `json:"responseCode"`
+	ResponseCode int32    `json:"responseCode"`
 	ResponseBody string   `json:"responseBody"`
 }
 

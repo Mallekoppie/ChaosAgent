@@ -27,14 +27,14 @@ type Routes []Route
 // Add longest paths first
 var serviceRoutes = Routes{
 	Route{
-		Path:          "/testgroup",
+		Path:          "/testgroups",
 		Method:        http.MethodGet,
 		HandlerFunc:   service.GetAllTestGroups,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
 	Route{
-		Path:               "/testgroup",
+		Path:               "/testgroups",
 		Method:             http.MethodPost,
 		HandlerFunc:        service.AddTestGroup,
 		SlaMs:              100,
@@ -42,9 +42,40 @@ var serviceRoutes = Routes{
 		AllowedContentType: AllowedContentType,
 	},
 	Route{
-		Path:          "/testgroup",
+		Path:               "/testgroups",
+		Method:             http.MethodPut,
+		HandlerFunc:        service.UpdateTestGroup,
+		SlaMs:              100,
+		RolesRequired:      []string{"user"},
+		AllowedContentType: AllowedContentType,
+	},
+	Route{
+		Path:          "/testgroups/{id}",
 		Method:        http.MethodDelete,
 		HandlerFunc:   service.DeleteTestGroup,
+		SlaMs:         100,
+		RolesRequired: []string{"user"},
+	},
+	Route{
+		Path:               "/testcollections",
+		Method:             http.MethodPost,
+		HandlerFunc:        service.AddTestCollection,
+		SlaMs:              100,
+		RolesRequired:      []string{"user"},
+		AllowedContentType: AllowedContentType,
+	},
+	Route{
+		Path:               "/testcollections",
+		Method:             http.MethodPut,
+		HandlerFunc:        service.UpdateTestCollection,
+		SlaMs:              100,
+		RolesRequired:      []string{"user"},
+		AllowedContentType: AllowedContentType,
+	},
+	Route{
+		Path:          "/testcollections/{id}",
+		Method:        http.MethodDelete,
+		HandlerFunc:   service.DeleteTestCollection,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
