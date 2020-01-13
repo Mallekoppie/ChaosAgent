@@ -111,6 +111,10 @@ export default {
   },
   methods: {
     async saveTestCollection() {
+      this.testCollection.tests.forEach(function(item) {
+        item.responseCode = parseInt(item.responseCode);
+      });
+
       await data.updateTestCollection(this.testCollection);
     },
     addHeaderToTest(test) {
