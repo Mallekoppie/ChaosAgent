@@ -72,6 +72,14 @@ var serviceRoutes = Routes{
 		RolesRequired:      []string{"user"},
 		AllowedContentType: AllowedContentType,
 	},
+	// Only during development
+	Route{
+		Path:          "/testcollections",
+		Method:        http.MethodOptions,
+		HandlerFunc:   service.TemplateToCopy,
+		SlaMs:         100,
+		RolesRequired: []string{"user"},
+	},
 	Route{
 		Path:          "/testcollections/{id}",
 		Method:        http.MethodDelete,

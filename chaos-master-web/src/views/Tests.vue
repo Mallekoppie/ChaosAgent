@@ -29,7 +29,10 @@
                   class="btn btn-warning"
                   :to="{
                     name: 'test-detail',
-                    params: { id: testCollection.id }
+                    params: {
+                      testCollectionInput: testCollection,
+                      id: testCollection.id
+                    }
                   }"
                   >Edit</router-link
                 >
@@ -47,6 +50,7 @@
 
 <script>
 import { dataStore } from "@/shared/datastoretemp.js";
+import { data } from "@/shared/datastore.js";
 
 export default {
   name: "Tests",
@@ -55,10 +59,15 @@ export default {
       testGroups: []
     };
   },
-  created() {
-    this.testGroups = dataStore.getTestGroups();
+  async created() {
+    this.testGroups = await dataStore.getTestGroups();
+    await this.loadTestGroups();
   },
   methods: {
+    async loadTestGroups() {
+      this.testGroups = [];
+      this.testGroups = await data.getAllTestGroups();
+    },
     showDetail(item) {
       if (item.showDetail == true) {
         item.showDetail = false;

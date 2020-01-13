@@ -51,7 +51,7 @@
               <b-button @click="addHeaderToTest(test)">Add Header</b-button>
             </b-form-group>
             <b-form-group label="Response Code">
-              <b-form-input v-model="test.responseCode" />
+              <b-form-input v-model="test.responseCode" type="number" />
             </b-form-group>
             <b-form-group label="Response Body">
               <b-form-textarea v-model="test.responseBody" />
@@ -63,7 +63,7 @@
     <b-row>
       <b-col lg="10" />
       <b-col lg="1">
-        <b-button variant="success">Save</b-button>
+        <b-button variant="success" @click="saveTestCollection">Save</b-button>
       </b-col>
       <b-col lg="1">
         <router-link
@@ -81,20 +81,25 @@
 </template>
 
 <script>
-import { dataStore } from "@/shared/datastoretemp.js";
+//import { dataStore } from "@/shared/datastoretemp.js";
+import { data } from "@/shared/datastore.js";
 const uuid = require("uuid");
 
 export default {
   name: "TestDetail",
   props: {
     id: {
-      type: Number,
-      default: 0
+      type: String,
+      default: "nothing"
+    },
+    testCollectionInput: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
     return {
-      testCollection: {},
+      testCollection: { ...this.testCollectionInput },
       httpMethods: [
         { value: "GET", text: "GET" },
         { value: "POST", text: "POST" },
@@ -104,14 +109,15 @@ export default {
       ]
     };
   },
-  created() {
-    this.testCollection = dataStore.getTestDetail();
-  },
   methods: {
-    saveTestCollection() {
-      // TODO: Api Call to Save
+    async saveTestCollection() {
+      await data.updateTestCollection(this.testCollection);
     },
     addHeaderToTest(test) {
+      if (test.headers == null) {
+        test.headers = [];
+      }
+
       test.headers.push({
         id: uuid(),
         name: "",

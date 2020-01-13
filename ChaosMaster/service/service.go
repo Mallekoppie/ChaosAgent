@@ -255,6 +255,6 @@ func DeleteTestCollection(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func templateToCopy(w http.ResponseWriter, r *http.Request) {
-
+func TemplateToCopy(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

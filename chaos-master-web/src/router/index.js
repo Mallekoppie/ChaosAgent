@@ -7,6 +7,10 @@ import TestDetail from "../views/TestDetail.vue";
 
 Vue.use(VueRouter);
 
+const parseTestCollectionProps = r => ({
+  testCollectionInput: r.params.testCollectionInput
+});
+
 const routes = [
   {
     path: "/",
@@ -26,7 +30,8 @@ const routes = [
   {
     path: "/testDetail",
     name: "test-detail",
-    component: TestDetail
+    component: TestDetail,
+    props: parseTestCollectionProps
   },
   {
     path: "/about",

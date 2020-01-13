@@ -233,6 +233,12 @@ func UpdateTestCollection(col models.TestCollection) error {
 
 	if result.ModifiedCount != 1 {
 		log.Println("Test Collection update failed for: ", col.ID)
+
+		err = AddTestCollection(col)
+		if err != nil {
+			logger.Info("Could not update so we will add it as a new test collection")
+			return err
+		}
 	}
 
 	return nil
