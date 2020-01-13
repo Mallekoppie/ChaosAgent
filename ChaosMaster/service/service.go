@@ -129,19 +129,108 @@ func AddTestGroup(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateTestGroup(w http.ResponseWriter, r *http.Request) {
+	group := models.TestGroup{}
 
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		logger.Error("Unable to read body: ", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	logger.Info("Request body received: ", string(data))
+
+	err = json.Unmarshal(data, &group)
+	if err != nil {
+		logger.Error("AddTestGroup: Unable to unmarshal request: ", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = logic.UpdateTestGroup(group)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	} else {
+		w.WriteHeader(http.StatusCreated)
+		return
+	}
 }
 
 func DeleteTestGroup(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
 
+	if len(id) < 1 {
+		logger.Error("Must provide valid id when deleting a Test Group")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err := logic.DeleteTestGroup(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func AddTestCollection(w http.ResponseWriter, r *http.Request) {
+	collection := models.TestCollection{}
 
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		logger.Error("Error reading request body: ", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	err = json.Unmarshal(data, &collection)
+	if err != nil {
+		logger.Error("AddTestCollection: Unable to unmarshal request: ", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = logic.AddTestCollection(collection)
+	if err != nil {
+		logger.Error("unable to add test collection: ", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 func UpdateTestCollection(w http.ResponseWriter, r *http.Request) {
+	collection := models.TestCollection{}
 
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		logger.Error("Error reading request body: ", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	err = json.Unmarshal(data, &collection)
+	if err != nil {
+		logger.Error("UpdateTestCollection: Unable to unmarshal request: ", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = logic.UpdateTestCollection(collection)
+	if err != nil {
+		logger.Error("unable to add test collection: ", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 func DeleteTestCollection(w http.ResponseWriter, r *http.Request) {

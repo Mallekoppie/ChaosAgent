@@ -157,7 +157,7 @@ func DeleteTestGroup(id string) error {
 
 	testCollection := mongoClient.Database(mongoDBName).Collection(mongoCollectionNameTestCollections)
 
-	testCollectionFilter := bson.D{{mongoIdFieldName, id}}
+	testCollectionFilter := bson.D{{mongoGroupIdFieldName, id}}
 
 	collectionResult, err := testCollection.DeleteMany(context.TODO(), testCollectionFilter)
 	if err != nil {
