@@ -43,7 +43,7 @@ func GetAllAgents() (agents []models.Agent, err error) {
 		chaosAgent, err := manager.GetAgent(agent.Id)
 		if err != nil {
 			logger.Error("Unable to get agent for Id: ", agent.Id)
-			agent.Status = "error"
+			agents[index].Status = "error"
 			continue
 		}
 

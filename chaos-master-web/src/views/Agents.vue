@@ -2,7 +2,7 @@
   <div>
     <b-list-group>
       <b-list-group-item v-for="agent in agents" :key="agent.id">
-        <b-form inline>
+        <b-form>
           <b-form-group label="Host" class="mb-2 mr-sm-2 mb-sm-0">
             <b-form-input v-model="agent.host" class="mb-2 mr-sm-2 mb-sm-0" />
             <b-form-invalid-feedback :state="validateHostname(agent)"
@@ -12,10 +12,19 @@
 
           <b-form-group label="Port" class="mb-2 mr-sm-2 mb-sm-0">
             <b-form-input v-model="agent.port" class="mb-2 mr-sm-2 mb-sm-0" />
-            <b-form-invalid-feedback :state="validatePort(agent)"
-              >Port must be between 10000 and 65200
-              long.</b-form-invalid-feedback
-            >
+            <b-form-invalid-feedback :state="validatePort(agent)">
+              Port must be between 2000 and 65200 long.
+            </b-form-invalid-feedback>
+          </b-form-group>
+
+          <b-form-group label="Metrics Port" class="mb-2 mr-sm-2 mb-sm-0">
+            <b-form-input
+              v-model="agent.metricsPort"
+              class="mb-2 mr-sm-2 mb-sm-0"
+            />
+            <b-form-invalid-feedback :state="validateMetricsPort(agent)">
+              Port must be between 2000 and 65200 long.
+            </b-form-invalid-feedback>
           </b-form-group>
 
           <b-form-group label="Enabled" class="mb-2 mr-sm-2 mb-sm-0">
@@ -25,9 +34,9 @@
               class="mb-2 mr-sm-2 mb-sm-0"
             />
           </b-form-group>
-          <b-form-group label="Status" class="mb-2 mr-sm-2 mb-sm-0">
-            {{ agent.status }}
-          </b-form-group>
+          <b-form-group label="Status" class="mb-2 mr-sm-2 mb-sm-0">{{
+            agent.status
+          }}</b-form-group>
           <b-form-group label="Functions">
             <b-row>
               <b-col lg="3">
@@ -59,7 +68,7 @@
 </template>
 
 <script>
-import { dataStore } from "@/shared/datastoretemp.js";
+import { data } from "@/shared/agentstore.js";
 const uuid = require("uuid");
 
 export default {
@@ -69,24 +78,33 @@ export default {
       agents: []
     };
   },
-  created() {
-    this.agents = dataStore.getAgents();
+  async created() {
+    await this.getAllAgents();
   },
   methods: {
+    async getAllAgents() {
+      this.agents = await data.getAllAgents();
+    },
     addAgent() {
       this.agents.push({
         agentId: uuid(),
         host: "",
         port: 0,
         enabled: true,
-        status: "none"
+        status: "none",
+        metricsPort: 0
       });
     },
-    saveAgent() {
-      // Does nothing for now
+    async saveAgent(agent) {
+      agent.port = parseInt(agent.port);
+      agent.metricsPort = parseInt(agent.metricsPort);
+
+      await data.updateAgent(agent);
     },
-    deleteAgent(agent) {
-      const index = this.agents.findIndex(a => a.agentId == agent.agentId);
+    async deleteAgent(agent) {
+      await data.deleteAgent(agent);
+
+      const index = this.agents.findIndex(a => a.id == agent.id);
       this.agents.splice(index, 1);
     },
     validatePort(agent) {
@@ -98,7 +116,22 @@ export default {
 
       let value = parseInt(agent.port);
 
-      if (value < 10000 || value > 65200) {
+      if (value < 2000 || value > 65200) {
+        return false;
+      }
+
+      return true;
+    },
+        validateMetricsPort(agent) {
+      let isNumber = !isNaN(agent.metricsPort);
+
+      if (isNumber == false) {
+        return isNumber;
+      }
+
+      let value = parseInt(agent.metricsPort);
+
+      if (value < 2000 || value > 65200) {
         return false;
       }
 

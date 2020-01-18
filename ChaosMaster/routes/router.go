@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	AllowedContentType string = "application/json"
+	allowedContentType       string = "application/json"
+	allowedContentTypeDelete string = "application/json;charset=UTF-8"
 )
 
 type Route struct {
@@ -39,7 +40,7 @@ var serviceRoutes = Routes{
 		HandlerFunc:        service.AddTestGroup,
 		SlaMs:              100,
 		RolesRequired:      []string{"user"},
-		AllowedContentType: AllowedContentType,
+		AllowedContentType: allowedContentType,
 	},
 	Route{
 		Path:               "/testgroups",
@@ -47,7 +48,7 @@ var serviceRoutes = Routes{
 		HandlerFunc:        service.UpdateTestGroup,
 		SlaMs:              100,
 		RolesRequired:      []string{"user"},
-		AllowedContentType: AllowedContentType,
+		AllowedContentType: allowedContentType,
 	},
 	Route{
 		Path:          "/testgroups/{id}",
@@ -62,7 +63,7 @@ var serviceRoutes = Routes{
 		HandlerFunc:        service.AddTestCollection,
 		SlaMs:              100,
 		RolesRequired:      []string{"user"},
-		AllowedContentType: AllowedContentType,
+		AllowedContentType: allowedContentType,
 	},
 	Route{
 		Path:               "/testcollections",
@@ -70,7 +71,7 @@ var serviceRoutes = Routes{
 		HandlerFunc:        service.UpdateTestCollection,
 		SlaMs:              100,
 		RolesRequired:      []string{"user"},
-		AllowedContentType: AllowedContentType,
+		AllowedContentType: allowedContentType,
 	},
 	// Only during development
 	Route{
@@ -100,7 +101,7 @@ var serviceRoutes = Routes{
 		HandlerFunc:        service.UpdateAgent,
 		SlaMs:              100,
 		RolesRequired:      []string{"user"},
-		AllowedContentType: AllowedContentType,
+		AllowedContentType: allowedContentType,
 	},
 	Route{
 		Path:               "/agents",
@@ -108,7 +109,15 @@ var serviceRoutes = Routes{
 		HandlerFunc:        service.DeleteAgent,
 		SlaMs:              100,
 		RolesRequired:      []string{"user"},
-		AllowedContentType: AllowedContentType,
+		AllowedContentType: allowedContentTypeDelete,
+	},
+	// Only during development
+	Route{
+		Path:          "/agents",
+		Method:        http.MethodOptions,
+		HandlerFunc:   service.TemplateToCopy,
+		SlaMs:         100,
+		RolesRequired: []string{"user"},
 	},
 }
 

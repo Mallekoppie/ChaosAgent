@@ -3,6 +3,8 @@ package repositories
 import (
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -11,6 +13,7 @@ const (
 
 func TestConsulAgentRegistration(t *testing.T) {
 	agent := models.Agent{
+		Id:      uuid.New().String(),
 		Host:    "unittesthost",
 		Port:    1100,
 		Enabled: true,
@@ -25,6 +28,7 @@ func TestConsulAgentRegistration(t *testing.T) {
 
 func TestConsulAgentDelete(t *testing.T) {
 	agent := models.Agent{
+		Id:      uuid.New().String(),
 		Host:    "unittesthostdelete",
 		Port:    1100,
 		Enabled: true,
@@ -45,6 +49,7 @@ func TestConsulAgentDelete(t *testing.T) {
 
 func TestConsulAgentDisable(t *testing.T) {
 	agent := models.Agent{
+		Id:      uuid.New().String(),
 		Host:    "unittestToDisable",
 		Port:    1100,
 		Enabled: true,
