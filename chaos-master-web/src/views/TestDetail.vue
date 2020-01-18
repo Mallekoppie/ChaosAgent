@@ -40,12 +40,16 @@
                   <b-form-group label="Value">
                     <b-form-input v-model="header.value" />
                   </b-form-group>
-                  <b-button variant="success">Save</b-button>
-                  <b-button
-                    variant="danger"
-                    @click="deleteheaderFromTest(test, header)"
-                    >Delete</b-button
-                  >
+                  <b-row>
+                    <b-col cols="11"> </b-col>
+                    <b-col>
+                      <b-button
+                        variant="danger"
+                        @click="deleteheaderFromTest(test, header)"
+                        >Delete</b-button
+                      >
+                    </b-col>
+                  </b-row>
                 </b-list-group-item>
               </b-list-group>
               <b-button @click="addHeaderToTest(test)">Add Header</b-button>
@@ -70,7 +74,10 @@
           tag="button"
           class="btn btn-danger"
           :to="{
-            name: 'tests'
+            name: 'tests',
+            params: {
+              testGroupId: testGroupId
+            }
           }"
         >
           Cancel
@@ -95,6 +102,10 @@ export default {
     testCollectionInput: {
       type: Object,
       default: () => {}
+    },
+    testGroupId: {
+      type: String,
+      default: ""
     }
   },
   data() {

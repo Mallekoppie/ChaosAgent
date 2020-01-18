@@ -99,6 +99,33 @@ func GetAllTestGroups(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+func GetTestGroup(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if len(id) < 1 {
+		logger.Error("Must provide valid id when deleting a Test Group")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	group, err := logic.GetTestGroup(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	data, err := json.Marshal(group)
+	if err != nil {
+		logger.Error("Error marshalling Test Group for get: ", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
 func AddTestGroup(w http.ResponseWriter, r *http.Request) {
 	group := models.TestGroup{}
 

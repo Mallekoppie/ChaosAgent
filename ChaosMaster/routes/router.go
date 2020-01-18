@@ -28,6 +28,21 @@ type Routes []Route
 // Add longest paths first
 var serviceRoutes = Routes{
 	Route{
+		Path:          "/testgroups/{id}",
+		Method:        http.MethodGet,
+		HandlerFunc:   service.GetTestGroup,
+		SlaMs:         100,
+		RolesRequired: []string{"user"},
+	},
+	// Only during development
+	Route{
+		Path:          "/testgroups/{id}",
+		Method:        http.MethodOptions,
+		HandlerFunc:   service.TemplateToCopy,
+		SlaMs:         100,
+		RolesRequired: []string{"user"},
+	},
+	Route{
 		Path:          "/testgroups",
 		Method:        http.MethodGet,
 		HandlerFunc:   service.GetAllTestGroups,
@@ -101,6 +116,14 @@ var serviceRoutes = Routes{
 		Path:          "/testcollections/{id}",
 		Method:        http.MethodDelete,
 		HandlerFunc:   service.DeleteTestCollection,
+		SlaMs:         100,
+		RolesRequired: []string{"user"},
+	},
+	// Only during development
+	Route{
+		Path:          "/testcollections/{id}",
+		Method:        http.MethodOptions,
+		HandlerFunc:   service.TemplateToCopy,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},

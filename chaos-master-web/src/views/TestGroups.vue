@@ -14,7 +14,7 @@
           </b-form-group>
         </b-form>
         <b-form-row>
-          <b-col cols="10">
+          <b-col cols="11">
             <router-link
               tag="button"
               class="btn"
@@ -26,9 +26,6 @@
               }"
               >View Test Collections</router-link
             >
-          </b-col>
-          <b-col>
-            <b-button variant="success">Save</b-button>
           </b-col>
           <b-col>
             <b-button variant="danger" @click="deleteTestGroup(testGroup.id)"

@@ -114,6 +114,16 @@ func GetAllTestGroups() (tests []models.TestGroup, err error) {
 	return tests, nil
 }
 
+func GetTestGroup(id string) (group models.TestGroup, err error) {
+	group, err = repositories.GetTestGroup(id)
+	if err != nil {
+		logger.Error("Unable to get Test Group: ", err.Error())
+		return group, err
+	}
+
+	return group, err
+}
+
 func CreateTestGroup(group models.TestGroup) error {
 	err := repositories.AddTestGroup(group)
 	if err != nil {

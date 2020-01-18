@@ -41,7 +41,8 @@
                 name: 'test-detail',
                 params: {
                   testCollectionInput: testCollection,
-                  id: testCollection.id
+                  id: testCollection.id,
+                  testGroupId: testGroup.id
                 }
               }"
               >Edit</router-link
@@ -49,29 +50,28 @@
           </b-col>
           <b-col lg="1">
             <b-button>Execute</b-button>
+            <b-button
+              variant="danger"
+              @click="deleteTestCollection(testCollection.id)"
+              >Delete</b-button
+            >
           </b-col>
         </b-row>
       </b-list-group-item>
     </b-list-group>
-    <b-row>
-      <b-col cols="11"> </b-col>
-      <b-col cols="1">
-        <b-button variant="success" @click="addTestGroup">Add</b-button>
-      </b-col>
-    </b-row>
   </div>
 </template>
 
 <script>
-//import { data } from "@/shared/datastore.js";
-const uuid = require("uuid");
+import { data } from "@/shared/datastore.js";
+//const uuid = require("uuid");
 
 export default {
   name: "Tests",
   props: {
     id: {
       type: String,
-      default: "nothing"
+      default: ""
     },
     testGroupInput: {
       type: Object,
@@ -84,21 +84,18 @@ export default {
     };
   },
   methods: {
-    addTestGroup() {
-      this.testGroups.push({
-        id: uuid(),
-        name: "",
-        description: "",
-        showDetail: false,
-        testCollections: []
-      });
-    },
     showDetail(item) {
       if (item.showDetail == true) {
         item.showDetail = false;
       } else {
         item.showDetail = true;
       }
+    },
+    async deleteTestCollection(id) {
+      await data.deleteTestCollection(id);
+
+      let index = this.testGroup.testCollections.findIndex(h => h.id == id);
+      this.testGroup.testCollections.splice(index, 1);
     }
   }
 };

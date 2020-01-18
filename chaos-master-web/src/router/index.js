@@ -9,7 +9,8 @@ import TestDetail from "../views/TestDetail.vue";
 Vue.use(VueRouter);
 
 const parseTestCollectionProps = r => ({
-  testCollectionInput: r.params.testCollectionInput
+  testCollectionInput: r.params.testCollectionInput,
+  testGroupId: r.params.testGroupId
 });
 
 const parseTestGroupProps = r => ({
