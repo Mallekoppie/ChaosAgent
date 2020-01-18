@@ -122,7 +122,7 @@ export default {
 
       return true;
     },
-        validateMetricsPort(agent) {
+    validateMetricsPort(agent) {
       let isNumber = !isNaN(agent.metricsPort);
 
       if (isNumber == false) {

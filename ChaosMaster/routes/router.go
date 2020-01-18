@@ -57,6 +57,22 @@ var serviceRoutes = Routes{
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
+	// Only during development
+	Route{
+		Path:          "/testgroups",
+		Method:        http.MethodOptions,
+		HandlerFunc:   service.TemplateToCopy,
+		SlaMs:         100,
+		RolesRequired: []string{"user"},
+	},
+	// Only during development
+	Route{
+		Path:          "/testgroups/{id}",
+		Method:        http.MethodOptions,
+		HandlerFunc:   service.TemplateToCopy,
+		SlaMs:         100,
+		RolesRequired: []string{"user"},
+	},
 	Route{
 		Path:               "/testcollections",
 		Method:             http.MethodPost,

@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import Agents from "../views/Agents.vue";
+import TestGroups from "../views/TestGroups.vue";
 import Tests from "../views/Tests.vue";
 import TestDetail from "../views/TestDetail.vue";
 
@@ -9,6 +10,10 @@ Vue.use(VueRouter);
 
 const parseTestCollectionProps = r => ({
   testCollectionInput: r.params.testCollectionInput
+});
+
+const parseTestGroupProps = r => ({
+  testGroupInput: r.params.testGroupInput
 });
 
 const routes = [
@@ -23,9 +28,15 @@ const routes = [
     component: Agents
   },
   {
+    path: "/testgroups",
+    name: "testgroups",
+    component: TestGroups
+  },
+  {
     path: "/tests",
     name: "tests",
-    component: Tests
+    component: Tests,
+    props: parseTestGroupProps
   },
   {
     path: "/testDetail",
