@@ -9,7 +9,7 @@ import (
 
 	"github.com/tkanos/gonfig"
 
-	pb "mallekoppie/ChaosGenerator/Chaos"
+	pb "mallekoppie/ChaosGenerator/contract"
 )
 
 func ClearTestsDirectory() error {

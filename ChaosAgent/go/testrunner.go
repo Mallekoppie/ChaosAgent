@@ -10,7 +10,7 @@ import (
 
 	vegeta "github.com/tsenart/vegeta/lib"
 
-	pb "mallekoppie/ChaosGenerator/Chaos"
+	pb "mallekoppie/ChaosGenerator/contract"
 )
 
 var (

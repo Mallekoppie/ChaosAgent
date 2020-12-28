@@ -1,10 +1,11 @@
 package logic
 
 import (
+	"github.com/Mallekoppie/goslow/platform"
+	"go.uber.org/zap"
 	"mallekoppie/ChaosGenerator/ChaosMaster/manager"
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
 	"mallekoppie/ChaosGenerator/ChaosMaster/repositories"
-	"mallekoppie/ChaosGenerator/ChaosMaster/util/logger"
 )
 
 const (
@@ -13,17 +14,17 @@ const (
 )
 
 func GetAllAgents() (agents []models.Agent, err error) {
-	logger.Info("Getting all agents")
+	platform.Logger.Info("Getting all agents")
 
 	agents, err = repositories.GetAllAgents(consulAgentServiceName)
 	if err != nil {
-		logger.Error("Unable to get agents: ", err.Error())
+		platform.Logger.Error("Unable to get agents: ", zap.Error(err))
 		return agents, err
 	}
 
 	agentmetrics, err := repositories.GetAllAgents(consulAgentMetricsName)
 	if err != nil {
-		logger.Error("Unable to get agents: ", err.Error())
+		platform.Logger.Error("Unable to get agents: ", zap.Error(err))
 		return agents, err
 	}
 
@@ -42,63 +43,63 @@ func GetAllAgents() (agents []models.Agent, err error) {
 
 		chaosAgent, err := manager.GetAgent(agent.Id)
 		if err != nil {
-			logger.Error("Unable to get agent for Id: ", agent.Id)
+			platform.Logger.Error("Unable to get agent for Id: ", zap.String("id", agent.Id))
 			agents[index].Status = "error"
 			continue
 		}
 
 		alive := chaosAgent.IsAlive()
 
-		logger.Info("Agent IsAlive response: ", alive)
+		platform.Logger.Info("Agent IsAlive response", zap.Bool("alive",alive))
 
 		if alive == true {
-			logger.Info("Setting online")
+			platform.Logger.Info("Setting online")
 			agents[index].Status = "online"
 		} else {
-			logger.Info("Setting offline")
+			platform.Logger.Info("Setting offline")
 			agents[index].Status = "offline"
 		}
 	}
 
-	logger.Info("Returning agents successfully")
+	platform.Logger.Info("Returning agents successfully")
 	return agents, nil
 }
 
 func UpdateAgent(agent models.Agent) error {
-	logger.Info("Adding agent")
+	platform.Logger.Info("Adding agent")
 	// Register Agent
 	err := repositories.UpdateChaosAgent(agent, consulAgentServiceName, agent.Port)
 	if err != nil {
-		logger.Error("Unable to register normal agent in consul: ", err.Error())
+		platform.Logger.Error("Unable to register normal agent in consul: ", zap.Error(err))
 		return err
 	}
 	// Register Metrics
 	err = repositories.UpdateChaosAgent(agent, consulAgentMetricsName, agent.MetricsPort)
 	if err != nil {
-		logger.Error("Unable to register metrics agent in consul: ", err.Error())
+		platform.Logger.Error("Unable to register metrics agent in consul: ", zap.Error(err))
 		return err
 	}
 
-	logger.Info("Added agent successfully")
+	platform.Logger.Info("Added agent successfully")
 	return nil
 }
 
 func DeleteAgent(agent models.Agent) error {
-	logger.Info("Deleteing agent")
+	platform.Logger.Info("Deleting agent")
 
 	err := repositories.DeleteChaosAgent(agent, consulAgentServiceName)
 	if err != nil {
-		logger.Error("Unable to delete normal agent in consul: ", err.Error())
+		platform.Logger.Error("Unable to delete normal agent in consul: ", zap.Error(err))
 		return err
 	}
 
 	err = repositories.DeleteChaosAgent(agent, consulAgentMetricsName)
 	if err != nil {
-		logger.Error("Unable to delete metric agent in consul: ", err.Error())
+		platform.Logger.Error("Unable to delete metric agent in consul: ", zap.Error(err))
 		return err
 	}
 
-	logger.Info("Agent deleted")
+	platform.Logger.Debug("Agent deleted")
 	return nil
 
 }
@@ -109,15 +110,13 @@ func GetAllTestGroups() (tests []models.TestGroup, err error) {
 		return tests, err
 	}
 
-	logger.Info("Tests Returned: ", tests)
-
 	return tests, nil
 }
 
 func GetTestGroup(id string) (group models.TestGroup, err error) {
 	group, err = repositories.GetTestGroup(id)
 	if err != nil {
-		logger.Error("Unable to get Test Group: ", err.Error())
+		platform.Logger.Error("Unable to get Test Group: ", zap.Error(err))
 		return group, err
 	}
 
@@ -127,7 +126,7 @@ func GetTestGroup(id string) (group models.TestGroup, err error) {
 func CreateTestGroup(group models.TestGroup) error {
 	err := repositories.AddTestGroup(group)
 	if err != nil {
-		logger.Error("Unable to create new TestGroup: ", err)
+		platform.Logger.Error("Unable to create new TestGroup", zap.Error(err))
 		return err
 	}
 

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"log"
-	pb "mallekoppie/ChaosGenerator/Chaos"
+	pb "mallekoppie/ChaosGenerator/contract"
 
 	core "mallekoppie/ChaosGenerator/ChaosAgent/go"
 

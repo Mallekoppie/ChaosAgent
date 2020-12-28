@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Mallekoppie/goslow/platform"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
 	"net/http"
 	"strconv"
 	"time"
-	//	"github.com/google/uuid"
 )
 
 var (
@@ -20,9 +21,9 @@ var (
 	DefaultTLSConfig                 = &tls.Config{InsecureSkipVerify: true}
 	ConsulUrl                        string
 	ConsulToken                      string
-	ErrConsulPortIncorrect         = errors.New("Consul port incorrect")
-	ErrConsulHostIncorrect         = errors.New("Consul host incorrect")
-	ErrConsulResponseCodeIncorrect = errors.New("Consul returned incorrect response code")
+	ErrConsulPortIncorrect         = errors.New("consul port incorrect")
+	ErrConsulHostIncorrect         = errors.New("consul host incorrect")
+	ErrConsulResponseCodeIncorrect = errors.New("consul returned incorrect response code")
 )
 
 const (
@@ -57,11 +58,12 @@ func createConsulRequest(port int, host string, enabled bool, serviceName string
 
 	if port < 1024 || port > 65200 {
 		log.Println("Bad port value for consul request: ", port)
+		platform.Logger.Error("Bad port value for consul request", zap.Int("port", port))
 		return consulRequest, ErrConsulPortIncorrect
 	}
 
 	if len(host) < 1 {
-		log.Println("Bad host value for consul request: ", host)
+		platform.Logger.Error("Bad host value for consul request", zap.String("host", host))
 		return consulRequest, ErrConsulHostIncorrect
 	}
 
@@ -84,7 +86,7 @@ func UpdateChaosAgent(agent models.Agent, serviceName string, port int) error {
 
 	data, err := json.Marshal(requestObject)
 	if err != nil {
-		log.Println("Unable to marchall agent to json for update: ", err.Error())
+		platform.Logger.Error("Unable to marchall agent to json for update: ", zap.Error(err))
 		return err
 	}
 
@@ -96,12 +98,12 @@ func UpdateChaosAgent(agent models.Agent, serviceName string, port int) error {
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		log.Println("Error while sending request to Consul: ", err.Error())
+		platform.Logger.Error("Error while sending request to Consul: ", zap.Error(err))
 		return err
 	}
 
 	if response.StatusCode != http.StatusOK {
-		log.Println("Incorrect response code from consul for agent registration: ", response.StatusCode)
+		platform.Logger.Error("Incorrect response code from consul for agent registration: ", zap.Int("status_code", response.StatusCode))
 		return ErrConsulResponseCodeIncorrect
 	}
 
@@ -116,24 +118,24 @@ func DeleteChaosAgent(agent models.Agent, serviceName string) error {
 
 	data, err := json.Marshal(requestObject)
 	if err != nil {
-		log.Println("Unable to marchall agent to json for update: ", err.Error())
+		platform.Logger.Error("Unable to marchall agent to json for update: ", zap.Error(err))
 		return err
 	}
 
 	request, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%v/v1/catalog/deregister", ConsulUrl), bytes.NewBuffer(data))
 	if err != nil {
-		log.Println("Unable to create new HTTP request for Consul update: ", err.Error())
+		platform.Logger.Error("Unable to create new HTTP request for Consul update: ", zap.Error(err))
 		return err
 	}
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		log.Println("Error while sending request to Consul: ", err.Error())
+		platform.Logger.Error("Error while sending request to Consul: ", zap.Error(err))
 		return err
 	}
 
 	if response.StatusCode != http.StatusOK {
-		log.Println("Incorrect response code from consul for agent registration: ", response.StatusCode)
+		platform.Logger.Error("Incorrect response code from consul for agent registration: ", zap.Int("status_code", response.StatusCode))
 		return ErrConsulResponseCodeIncorrect
 	}
 
@@ -144,31 +146,31 @@ func GetAllAgents(serviceName string) (agents []models.Agent, err error) {
 
 	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%v/v1/catalog/service/%v", ConsulUrl, serviceName), nil)
 	if err != nil {
-		log.Println("Error creating request to retrieve all consul agents: ", err.Error())
+		platform.Logger.Error("Error creating request to retrieve all consul agents: ", zap.Error(err))
 		return nil, err
 	}
 
 	response, err := httpClient.Do(request)
 	if err != nil {
-		log.Println("Unable to make call to consul: ", err.Error())
+		platform.Logger.Error("Unable to make call to consul: ", zap.Error(err))
 		return nil, err
 	}
 
 	if response.StatusCode != http.StatusOK {
-		log.Println("Consul returned incorrect response code. Expected 200 but received ", response.StatusCode)
+		platform.Logger.Error("Consul returned incorrect response code. Expected 200 but received ", zap.Int("status_code", response.StatusCode))
 		return nil, ErrConsulResponseCodeIncorrect
 	}
 
 	defer response.Body.Close()
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Println("Error reading response body: ", err.Error())
+		platform.Logger.Error("Error reading response body: ", zap.Error(err))
 		return nil, err
 	}
 	consulAgentResponse := models.ConsulAgentResponse{}
 	err = json.Unmarshal(data, &consulAgentResponse)
 	if err != nil {
-		log.Println("Error unmarshalling consul agents: ", err.Error())
+		platform.Logger.Error("Error unmarshalling consul agents: ", zap.Error(err))
 		return nil, err
 	}
 
@@ -182,7 +184,7 @@ func GetAllAgents(serviceName string) (agents []models.Agent, err error) {
 		}
 		enabled, err := strconv.ParseBool(consulAgentResponse[i].NodeMeta.Enabled)
 		if err != nil {
-			log.Println("unable to parse agent enabled status: ", err.Error())
+			platform.Logger.Error("unable to parse agent enabled status: ", zap.Error(err))
 			enabled = false
 		} else {
 			agent.Enabled = enabled

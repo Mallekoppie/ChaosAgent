@@ -8,13 +8,14 @@ import (
 
 	"github.com/tkanos/gonfig"
 
-	pb "mallekoppie/ChaosGenerator/Chaos"
+	pb "mallekoppie/ChaosGenerator/ChaosMaster/contract"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
 	"mallekoppie/ChaosGenerator/ChaosMaster/repositories"
-	"mallekoppie/ChaosGenerator/ChaosMaster/util/logger"
+	"github.com/Mallekoppie/goslow/platform"
+	"go.uber.org/zap"
 )
 
 var (
@@ -40,7 +41,7 @@ func init() {
 
 func getAgents() []ChaosAgent {
 	if len(agents) < 1 {
-		logger.Info("No agents. Re-initializing")
+		platform.Logger.Info("No agents. Re-initializing")
 		initializeAgents()
 	}
 
@@ -55,23 +56,23 @@ func initializeAgents() {
 		return
 	}
 
-	logger.Info("Initializing agents")
+	platform.Logger.Info("Initializing agents")
 	for i := range agents {
 		err := agents[i].Init()
 		if err != nil {
-			logger.Error("Unable to initialize agent: ", err.Error())
+			platform.Logger.Error("Unable to initialize agent", zap.Error(err))
 		}
 	}
 	count := len(agents)
-	logger.Info("Config count during initialization: ", count)
-	logger.Info("Initialized agents")
+	platform.Logger.Info("Config count during initialization", zap.Int("count", count))
+	platform.Logger.Info("Initialized agents")
 }
 
 func GetChaosMasterAgents() error {
 	agents = make([]ChaosAgent, 0)
 	consulAgents, err := repositories.GetAllAgents(consulAgentServiceName)
 	if err != nil {
-		logger.Error("Unable to get agent configuration: ", err.Error())
+		platform.Logger.Error("Unable to get agent configuration", zap.Error(err))
 		return err
 	}
 
@@ -93,13 +94,13 @@ func GetAgent(id string) (agent ChaosAgent, err error) {
 
 	agents := getAgents()
 	number := len(agents)
-	logger.Info("Number of agents returned: ", number)
+	platform.Logger.Info("Number of agents returned",zap.Int("agent_number", number))
 
 	for i := range agents {
 		log.Println("inside loop")
 		log.Printf("Comparing %v to %v", agents[i].Id, id)
 		if agents[i].Id == id {
-			logger.Info("Agent Found")
+			platform.Logger.Debug("Agent Found")
 			return agents[i], nil
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * Chaos Agent
+ * contract Agent
  *
  * API is used to create load for other APIs
  *
@@ -17,7 +17,7 @@ import (
 
 	"github.com/tkanos/gonfig"
 
-	pb "mallekoppie/ChaosGenerator/Chaos"
+	pb "mallekoppie/ChaosGenerator/contract"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

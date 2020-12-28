@@ -3,7 +3,7 @@ swagger: "2.0"
 info:
   description: "API is used to create load for other APIs"
   version: "1.0.0"
-  title: "Chaos Agent"
+  title: "contract Agent"
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"

@@ -1,7 +1,6 @@
-// shippy-service-consignment/proto/consignment/consignment.proto
 syntax = "proto3";
 
-package chaos_generator;
+package contract;
 
 service ChaosAgent {
     rpc AddTests(TestCollection) returns (Response) {}

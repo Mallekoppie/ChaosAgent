@@ -1,8 +1,9 @@
 package repositories
 
 import (
+	"github.com/Mallekoppie/goslow/platform"
+	"go.uber.org/zap"
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
-	"mallekoppie/ChaosGenerator/ChaosMaster/util/logger"
 
 	"context"
 	"errors"

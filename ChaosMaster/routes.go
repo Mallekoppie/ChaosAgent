@@ -1,12 +1,9 @@
-package routes
+package main
 
 import (
-	"net/http"
-
-	"mallekoppie/ChaosGenerator/ChaosMaster/middleware"
+	"github.com/Mallekoppie/goslow/platform"
 	"mallekoppie/ChaosGenerator/ChaosMaster/service"
-
-	"github.com/gorilla/mux"
+	"net/http"
 )
 
 const (
@@ -14,20 +11,8 @@ const (
 	allowedContentTypeDelete string = "application/json;charset=UTF-8"
 )
 
-type Route struct {
-	Path               string
-	Method             string
-	HandlerFunc        http.HandlerFunc
-	SlaMs              int64
-	RolesRequired      []string
-	AllowedContentType string
-}
-
-type Routes []Route
-
-// Add longest paths first
-var serviceRoutes = Routes{
-	Route{
+var Routes = platform.Routes{
+	platform.Route{
 		Path:          "/testgroups/{id}",
 		Method:        http.MethodGet,
 		HandlerFunc:   service.GetTestGroup,
@@ -35,21 +20,21 @@ var serviceRoutes = Routes{
 		RolesRequired: []string{"user"},
 	},
 	// Only during development
-	Route{
+	platform.Route{
 		Path:          "/testgroups/{id}",
 		Method:        http.MethodOptions,
 		HandlerFunc:   service.TemplateToCopy,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
-	Route{
+	platform.Route{
 		Path:          "/testgroups",
 		Method:        http.MethodGet,
 		HandlerFunc:   service.GetAllTestGroups,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
-	Route{
+	platform.Route{
 		Path:               "/testgroups",
 		Method:             http.MethodPost,
 		HandlerFunc:        service.AddTestGroup,
@@ -57,7 +42,7 @@ var serviceRoutes = Routes{
 		RolesRequired:      []string{"user"},
 		AllowedContentType: allowedContentType,
 	},
-	Route{
+	platform.Route{
 		Path:               "/testgroups",
 		Method:             http.MethodPut,
 		HandlerFunc:        service.UpdateTestGroup,
@@ -65,7 +50,7 @@ var serviceRoutes = Routes{
 		RolesRequired:      []string{"user"},
 		AllowedContentType: allowedContentType,
 	},
-	Route{
+	platform.Route{
 		Path:          "/testgroups/{id}",
 		Method:        http.MethodDelete,
 		HandlerFunc:   service.DeleteTestGroup,
@@ -73,7 +58,7 @@ var serviceRoutes = Routes{
 		RolesRequired: []string{"user"},
 	},
 	// Only during development
-	Route{
+	platform.Route{
 		Path:          "/testgroups",
 		Method:        http.MethodOptions,
 		HandlerFunc:   service.TemplateToCopy,
@@ -81,14 +66,14 @@ var serviceRoutes = Routes{
 		RolesRequired: []string{"user"},
 	},
 	// Only during development
-	Route{
+	platform.Route{
 		Path:          "/testgroups/{id}",
 		Method:        http.MethodOptions,
 		HandlerFunc:   service.TemplateToCopy,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
-	Route{
+	platform.Route{
 		Path:               "/testcollections",
 		Method:             http.MethodPost,
 		HandlerFunc:        service.AddTestCollection,
@@ -96,7 +81,7 @@ var serviceRoutes = Routes{
 		RolesRequired:      []string{"user"},
 		AllowedContentType: allowedContentType,
 	},
-	Route{
+	platform.Route{
 		Path:               "/testcollections",
 		Method:             http.MethodPut,
 		HandlerFunc:        service.UpdateTestCollection,
@@ -105,14 +90,14 @@ var serviceRoutes = Routes{
 		AllowedContentType: allowedContentType,
 	},
 	// Only during development
-	Route{
+	platform.Route{
 		Path:          "/testcollections",
 		Method:        http.MethodOptions,
 		HandlerFunc:   service.TemplateToCopy,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
-	Route{
+	platform.Route{
 		Path:          "/testcollections/{id}",
 		Method:        http.MethodDelete,
 		HandlerFunc:   service.DeleteTestCollection,
@@ -120,21 +105,21 @@ var serviceRoutes = Routes{
 		RolesRequired: []string{"user"},
 	},
 	// Only during development
-	Route{
+	platform.Route{
 		Path:          "/testcollections/{id}",
 		Method:        http.MethodOptions,
 		HandlerFunc:   service.TemplateToCopy,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
-	Route{
+	platform.Route{
 		Path:          "/agents",
 		Method:        http.MethodGet,
 		HandlerFunc:   service.GetAllAgents,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
-	Route{
+	platform.Route{
 		Path:               "/agents",
 		Method:             http.MethodPut,
 		HandlerFunc:        service.UpdateAgent,
@@ -142,7 +127,7 @@ var serviceRoutes = Routes{
 		RolesRequired:      []string{"user"},
 		AllowedContentType: allowedContentType,
 	},
-	Route{
+	platform.Route{
 		Path:               "/agents",
 		Method:             http.MethodDelete,
 		HandlerFunc:        service.DeleteAgent,
@@ -151,35 +136,11 @@ var serviceRoutes = Routes{
 		AllowedContentType: allowedContentTypeDelete,
 	},
 	// Only during development
-	Route{
+	platform.Route{
 		Path:          "/agents",
 		Method:        http.MethodOptions,
 		HandlerFunc:   service.TemplateToCopy,
 		SlaMs:         100,
 		RolesRequired: []string{"user"},
 	},
-}
-
-func NewRouter() *mux.Router {
-	router := mux.NewRouter().StrictSlash(true)
-
-	for index := range serviceRoutes {
-		route := serviceRoutes[index]
-		var handler http.Handler
-		handler = route.HandlerFunc
-
-		// Add the middleware components. The are executed from the bottom up
-		handler = middleware.AllowedContentType(handler, route.AllowedContentType)
-		handler = middleware.AllowCors(handler)
-		//handler = middleware.UseOAuth2(handler, route.RolesRequired) // Disabled during development
-		handler = middleware.TrackServiceMethodSla(handler, route.SlaMs)
-
-		router.
-			Path(route.Path).
-			Methods(route.Method).
-			Handler(handler)
-
-	}
-
-	return router
 }
