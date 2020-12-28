@@ -30,3 +30,5 @@ chaos-master-web/package-lock.json
 ChaosMaster/repositories/ChaosMasterConfig.json
 random.json
 .idea/*
+/ChaosMaster/database.db
+/ChaosMaster/database.db.lock
