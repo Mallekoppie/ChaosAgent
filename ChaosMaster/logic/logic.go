@@ -3,7 +3,6 @@ package logic
 import (
 	"github.com/Mallekoppie/goslow/platform"
 	"go.uber.org/zap"
-	"mallekoppie/ChaosGenerator/ChaosMaster/manager"
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
 	"mallekoppie/ChaosGenerator/ChaosMaster/repositories"
 )
@@ -16,50 +15,50 @@ const (
 func GetAllAgents() (agents []models.Agent, err error) {
 	platform.Logger.Info("Getting all agents")
 
-	agents, err = repositories.GetAllAgents(consulAgentServiceName)
+	agents, err = repositories.GetAllAgents()
 	if err != nil {
 		platform.Logger.Error("Unable to get agents: ", zap.Error(err))
 		return agents, err
 	}
 
-	agentmetrics, err := repositories.GetAllAgents(consulAgentMetricsName)
-	if err != nil {
-		platform.Logger.Error("Unable to get agents: ", zap.Error(err))
-		return agents, err
-	}
-
-	// Add metrics port to agent
-	for index := range agents {
-		for metricIndex := range agentmetrics {
-			if agents[index].Id == agentmetrics[metricIndex].Id {
-				agents[index].MetricsPort = agentmetrics[metricIndex].Port
-			}
-		}
-	}
+	//agentmetrics, err := repositories.GetAllAgents(consulAgentMetricsName)
+	//if err != nil {
+	//	platform.Logger.Error("Unable to get agents: ", zap.Error(err))
+	//	return agents, err
+	//}
+	//
+	//// Add metrics port to agent
+	//for index := range agents {
+	//	for metricIndex := range agentmetrics {
+	//		if agents[index].Id == agentmetrics[metricIndex].Id {
+	//			agents[index].MetricsPort = agentmetrics[metricIndex].Port
+	//		}
+	//	}
+	//}
 
 	// Get Agent status
-	for index := range agents {
-		agent := agents[index]
-
-		chaosAgent, err := manager.GetAgent(agent.Id)
-		if err != nil {
-			platform.Logger.Error("Unable to get agent for Id: ", zap.String("id", agent.Id))
-			agents[index].Status = "error"
-			continue
-		}
-
-		alive := chaosAgent.IsAlive()
-
-		platform.Logger.Info("Agent IsAlive response", zap.Bool("alive",alive))
-
-		if alive == true {
-			platform.Logger.Info("Setting online")
-			agents[index].Status = "online"
-		} else {
-			platform.Logger.Info("Setting offline")
-			agents[index].Status = "offline"
-		}
-	}
+	//for index := range agents {
+	//	agent := agents[index]
+	//
+	//	chaosAgent, err := manager.GetAgent(agent.Id)
+	//	if err != nil {
+	//		platform.Logger.Error("Unable to get agent for Id: ", zap.String("id", agent.Id))
+	//		agents[index].Status = "error"
+	//		continue
+	//	}
+	//
+	//	alive := chaosAgent.IsAlive()
+	//
+	//	platform.Logger.Info("Agent IsAlive response", zap.Bool("alive",alive))
+	//
+	//	if alive == true {
+	//		platform.Logger.Info("Setting online")
+	//		agents[index].Status = "online"
+	//	} else {
+	//		platform.Logger.Info("Setting offline")
+	//		agents[index].Status = "offline"
+	//	}
+	//}
 
 	platform.Logger.Info("Returning agents successfully")
 	return agents, nil
@@ -68,17 +67,17 @@ func GetAllAgents() (agents []models.Agent, err error) {
 func UpdateAgent(agent models.Agent) error {
 	platform.Logger.Info("Adding agent")
 	// Register Agent
-	err := repositories.UpdateChaosAgent(agent, consulAgentServiceName, agent.Port)
+	err := repositories.UpdateAgent(agent)
 	if err != nil {
 		platform.Logger.Error("Unable to register normal agent in consul: ", zap.Error(err))
 		return err
 	}
 	// Register Metrics
-	err = repositories.UpdateChaosAgent(agent, consulAgentMetricsName, agent.MetricsPort)
-	if err != nil {
-		platform.Logger.Error("Unable to register metrics agent in consul: ", zap.Error(err))
-		return err
-	}
+	//err = repositories.UpdateChaosAgent(agent, consulAgentMetricsName, agent.MetricsPort)
+	//if err != nil {
+	//	platform.Logger.Error("Unable to register metrics agent in consul: ", zap.Error(err))
+	//	return err
+	//}
 
 	platform.Logger.Info("Added agent successfully")
 	return nil
@@ -87,17 +86,17 @@ func UpdateAgent(agent models.Agent) error {
 func DeleteAgent(agent models.Agent) error {
 	platform.Logger.Info("Deleting agent")
 
-	err := repositories.DeleteChaosAgent(agent, consulAgentServiceName)
+	err := repositories.DeleteAgent(agent.Id)
 	if err != nil {
 		platform.Logger.Error("Unable to delete normal agent in consul: ", zap.Error(err))
 		return err
 	}
-
-	err = repositories.DeleteChaosAgent(agent, consulAgentMetricsName)
-	if err != nil {
-		platform.Logger.Error("Unable to delete metric agent in consul: ", zap.Error(err))
-		return err
-	}
+	//
+	//err = repositories.DeleteChaosAgent(agent, consulAgentMetricsName)
+	//if err != nil {
+	//	platform.Logger.Error("Unable to delete metric agent in consul: ", zap.Error(err))
+	//	return err
+	//}
 
 	platform.Logger.Debug("Agent deleted")
 	return nil

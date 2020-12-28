@@ -17,10 +17,10 @@ import (
 )
 
 var (
-	httpClient                       *http.Client
-	DefaultTLSConfig                 = &tls.Config{InsecureSkipVerify: true}
-	ConsulUrl                        string
-	ConsulToken                      string
+	httpClient                     *http.Client
+	DefaultTLSConfig               = &tls.Config{InsecureSkipVerify: true}
+	ConsulUrl                      string
+	ConsulToken                    string
 	ErrConsulPortIncorrect         = errors.New("consul port incorrect")
 	ErrConsulHostIncorrect         = errors.New("consul host incorrect")
 	ErrConsulResponseCodeIncorrect = errors.New("consul returned incorrect response code")
@@ -146,7 +146,7 @@ func DeleteChaosAgent(agent models.Agent, serviceName string) error {
 	return nil
 }
 
-func GetAllAgents(serviceName string) (agents []models.Agent, err error) {
+func GetAllChaosAgents(serviceName string) (agents []models.Agent, err error) {
 
 	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%v/v1/catalog/service/%v", ConsulUrl, serviceName), nil)
 	if err != nil {

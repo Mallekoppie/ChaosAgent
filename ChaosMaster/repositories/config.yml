@@ -53,7 +53,7 @@ platform:
             username: test username
             password: testpassword
   component:
-    componentname: Example platform service
+    componentname: ChaosMaster
   database:
     boltdb:
       enabled: true

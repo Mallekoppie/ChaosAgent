@@ -71,7 +71,7 @@ func TestConsulAgentDisable(t *testing.T) {
 }
 
 func TestGetAllAgents(t *testing.T) {
-	agents, err := GetAllAgents(ServiceName)
+	agents, err := GetAllChaosAgents(ServiceName)
 	if err != nil {
 		t.Fatal("Unable to retrieve all agents: ", err.Error())
 		t.Fail()

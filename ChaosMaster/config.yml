@@ -53,12 +53,22 @@ platform:
             username: test username
             password: testpassword
   component:
-    componentname: Example platform service
+    componentname: ChaosMaster
   database:
     boltdb:
       enabled: true
       filename: ./database.db
 
-componentconfigexample:
-  name: my custom config
-  port: 9001
+ChaosMasterConfiguration:
+  grafana_url: test
+  prometheus_url: test
+  idp_url: test
+  idp_client_id: test
+  mongo_db_name: local
+  mongo_db_host: localhost
+  mongo_db_port: 1
+  mongo_db_username: admin
+  mongo_db_password: admin
+  vault_enabled: false
+  consul_url:  test
+  consul_token: test

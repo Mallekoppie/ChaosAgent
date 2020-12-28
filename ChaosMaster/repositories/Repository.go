@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	bucketTestGroup                    string = "testgroup"
-	bucketTestCollection               string = "testcollection"
-	bucketAgent                        string = "agent"
+	bucketTestGroup      string = "testgroup"
+	bucketTestCollection string = "testcollection"
+	bucketAgent          string = "agent"
 )
 
 var (
@@ -95,7 +95,6 @@ func DeleteAllTestGroups() error {
 }
 
 func DeleteTestGroup(id string) error {
-
 
 	result, err := platform.Database.BoltDb.ReadAllObjects(bucketTestCollection)
 	if err != nil {
@@ -217,4 +216,70 @@ func GetTestCollectionsForGroup(id string) (tests []models.TestCollection, err e
 	}
 
 	return tests, nil
+}
+
+func AddAgent(agent models.Agent) error {
+	err := platform.Database.BoltDb.SaveObject(bucketAgent, agent.Id, agent)
+	if err != nil {
+		platform.Logger.Error("Error saving agent", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func DeleteAgent(id string) error {
+	err := platform.Database.BoltDb.RemoveObject(bucketAgent, id)
+	if err != nil {
+		platform.Logger.Error("Error removing agent", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func DeleteAllAgents() error {
+	err := platform.Database.BoltDb.RemoveBucket(bucketAgent)
+	if err != nil {
+		platform.Logger.Error("Error removing all agents", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func UpdateAgent(agent models.Agent) error {
+	err := platform.Database.BoltDb.SaveObject(bucketAgent, agent.Id, agent)
+	if err != nil {
+		platform.Logger.Error("Error Updating agent", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func GetAllAgents() (agents []models.Agent, err error) {
+	agents = make([]models.Agent, 0)
+
+	results, err := platform.Database.BoltDb.ReadAllObjects(bucketAgent)
+	if err != nil && err == platform.ErrNoEntryFoundInDB {
+		return agents, nil
+	}
+	if err != nil {
+		platform.Logger.Error("Error retrieving agents", zap.Error(err))
+		return nil, err
+	}
+
+	for _, v := range results {
+		agent := models.Agent{}
+		err = json.Unmarshal([]byte(v), &agent)
+		if err != nil {
+			platform.Logger.Error("Error unmarshalling agent", zap.Error(err))
+			return nil, err
+		}
+
+		agents = append(agents, agent)
+	}
+
+	return agents, nil
 }
