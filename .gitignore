@@ -29,3 +29,4 @@ ChaosAgent/tests/
 chaos-master-web/package-lock.json
 ChaosMaster/repositories/ChaosMasterConfig.json
 random.json
+.idea/*

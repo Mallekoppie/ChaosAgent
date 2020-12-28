@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Mallekoppie/goslow/platform"
 	"mallekoppie/ChaosGenerator/ChaosMaster/service"
+	"github.com/Mallekoppie/goslow/platform"
 	"net/http"
 )
 

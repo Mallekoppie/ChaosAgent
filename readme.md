@@ -10,4 +10,4 @@ The main purpose is to determine the maximum theoretical through of a service. T
 
 In root ChaosGenerator directory
 
-> protoc --go_out=plugins=grpc:. ./Chaos/chaos.proto
+> protoc --go_out=plugins=grpc:. ./contract/chaos.proto

@@ -31,6 +31,10 @@ const (
 	RequestTimeout     int = 30
 )
 
+var (
+	serviceConfig models.ServiceConfig
+)
+
 // init HTTPClient
 func init() {
 	httpClient = createHTTPClient()
