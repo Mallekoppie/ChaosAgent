@@ -3,8 +3,8 @@
     <div class="col">
       <card type="tasks" :header-classes="{'text-right': isRTL}">
         <template slot="header">
-          <h6 class="title d-inline">Test Groups</h6>
-          <p class="card-category d-inline">These are just used to group various test collections</p>
+          <h6 class="title d-inline">Agents</h6>
+          <p class="card-category d-inline">These are the workers executing the tests</p>
           <base-dropdown menu-on-right=""
                          tag="div"
                          title-classes="btn btn-link btn-icon"
@@ -38,7 +38,7 @@
   </div>
 </template>
 <script>
-import { data } from "@/shared/datastore.js";
+import { data } from "@/shared/agentstore.js";
 import {BaseTable} from '@/components'
 
   export default {
@@ -58,28 +58,6 @@ import {BaseTable} from '@/components'
     methods: {
       async getAllAgents() {
         this.agents = await data.getAllAgents();
-      },
-      addAgent() {
-        this.agents.push({
-          agentId: uuid(),
-          host: "",
-          port: 0,
-          enabled: true,
-          status: "none",
-          metricsPort: 0
-        });
-      },
-      async saveAgent(agent) {
-        agent.port = parseInt(agent.port);
-        agent.metricsPort = parseInt(agent.metricsPort);
-
-        await data.updateAgent(agent);
-      },
-      async deleteAgent(agent) {
-        await data.deleteAgent(agent);
-
-        const index = this.agents.findIndex(a => a.id == agent.id);
-        this.agents.splice(index, 1);
       },
       validatePort(agent) {
         let isNumber = !isNaN(agent.port);

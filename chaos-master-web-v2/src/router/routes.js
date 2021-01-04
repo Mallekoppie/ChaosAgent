@@ -14,6 +14,10 @@ const Maps = () => import(/* webpackChunkName: "common" */ "@/pages/Maps.vue");
 const Typography = () => import(/* webpackChunkName: "common" */ "@/pages/Typography.vue");
 const TableList = () => import(/* webpackChunkName: "common" */ "@/pages/TableList.vue");
 
+const parseAgentProps = r => ({
+  agentInput: r.params.agentInput
+});
+
 const routes = [
   {
     path: "/",
