@@ -5,11 +5,17 @@ import (
 	"go.uber.org/zap"
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
 	"mallekoppie/ChaosGenerator/ChaosMaster/repositories"
+
+	"errors"
 )
 
 const (
 	consulAgentServiceName string = "ChaosAgent"
 	consulAgentMetricsName string = "ChaosAgentMetrics"
+)
+
+var (
+	ErrParentTestGroupDoesNotExist = errors.New("Parent TestGroup does not exist")
 )
 
 func GetAllAgents() (agents []models.Agent, err error) {
@@ -143,13 +149,36 @@ func DeleteTestGroup(id string) error {
 }
 
 func AddTestCollection(test models.TestCollection) error {
-	err := repositories.AddTestCollection(test)
+
+	result, err := repositories.DoesTestGroupExist(test.GroupId)
+	if err != nil {
+		platform.Logger.Error("Error verifying if the test group exists when adding test collection", zap.Error(err))
+		return err
+	}
+
+	if result == false {
+		platform.Logger.Warn("Parent Test Group must exist when adding a test collection")
+		return ErrParentTestGroupDoesNotExist
+	}
+
+	err = repositories.AddTestCollection(test)
 
 	return err
 }
 
 func UpdateTestCollection(test models.TestCollection) error {
-	err := repositories.UpdateTestCollection(test)
+	result, err := repositories.DoesTestGroupExist(test.GroupId)
+	if err != nil {
+		platform.Logger.Error("Error verifying if the test group exists when adding test collection", zap.Error(err))
+		return err
+	}
+
+	if result == false {
+		platform.Logger.Warn("Parent Test Group must exist when adding a test collection")
+		return ErrParentTestGroupDoesNotExist
+	}
+
+	err = repositories.UpdateTestCollection(test)
 
 	return err
 }

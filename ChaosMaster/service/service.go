@@ -2,12 +2,12 @@ package service
 
 import (
 	"encoding/json"
+	"github.com/Mallekoppie/goslow/platform"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"mallekoppie/ChaosGenerator/ChaosMaster/logic"
 	"mallekoppie/ChaosGenerator/ChaosMaster/models"
 	"net/http"
-	"github.com/Mallekoppie/goslow/platform"
-	"go.uber.org/zap"
 
 	"github.com/gorilla/mux"
 )
@@ -111,7 +111,10 @@ func GetTestGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	group, err := logic.GetTestGroup(id)
-	if err != nil {
+	if err != nil && err == platform.ErrNoEntryFoundInDB {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	} else if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -167,7 +170,7 @@ func UpdateTestGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	platform.Logger.Debug("Request body received: ", zap.String("data",string(data)))
+	platform.Logger.Debug("Request body received: ", zap.String("data", string(data)))
 
 	err = json.Unmarshal(data, &group)
 	if err != nil {
@@ -224,7 +227,11 @@ func AddTestCollection(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = logic.AddTestCollection(collection)
-	if err != nil {
+	if err != nil && err == logic.ErrParentTestGroupDoesNotExist {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	} else if err != nil {
 		platform.Logger.Error("unable to add test collection: ", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -252,7 +259,11 @@ func UpdateTestCollection(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = logic.UpdateTestCollection(collection)
-	if err != nil {
+	if err != nil && err == logic.ErrParentTestGroupDoesNotExist {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	} else if err != nil {
 		platform.Logger.Error("unable to add test collection: ", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return

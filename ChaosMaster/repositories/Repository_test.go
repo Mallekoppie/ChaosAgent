@@ -120,6 +120,45 @@ func TestGetAllTestGroups(t *testing.T) {
 	}
 }
 
+func TestDoesTestGroupExist(t *testing.T) {
+	testId := "mustnotexist"
+	result, err := DoesTestGroupExist(testId)
+	if err != nil {
+		t.Fail()
+	}
+
+	if result == false {
+		// Success
+	} else {
+		t.Fail()
+	}
+
+	group := createTestGroup()
+	group.ID = testId
+	err = AddTestGroup(group)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+	result2, err := DoesTestGroupExist(testId)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if result2 == true {
+		// success
+	} else {
+		t.Fail()
+	}
+
+	err = DeleteTestGroup(testId)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+}
+
 func TestGetTestCollectionForTestGroup(t *testing.T) {
 	group := createTestGroup()
 

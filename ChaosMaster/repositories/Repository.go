@@ -78,6 +78,19 @@ func GetTestGroup(id string) (testGroup models.TestGroup, err error) {
 	return testGroup, nil
 }
 
+func DoesTestGroupExist(id string) (bool, error) {
+	testGroup := models.TestGroup{}
+	err := platform.Database.BoltDb.ReadObject(bucketTestGroup, id, &testGroup)
+	if err != nil && err == platform.ErrNoEntryFoundInDB {
+		return false, nil
+	} else if err != nil {
+		platform.Logger.Error("Error reading object to see if it exists", zap.Error(err))
+		return false, err
+	}
+
+	return true, nil
+}
+
 func DeleteAllTestGroups() error {
 
 	err := platform.Database.BoltDb.RemoveBucket(bucketTestCollection)
