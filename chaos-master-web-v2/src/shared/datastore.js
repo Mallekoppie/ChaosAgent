@@ -16,7 +16,7 @@ const getAllTestGroups = async function() {
   tests.forEach(function(item) {
     item.showDetail = false;
   });
-
+  console.log('Returniong test groups')
   return tests;
 };
 
@@ -84,11 +84,30 @@ const deleteTestCollection = async function(id) {
   }
 };
 
+const getAllAgents = async function() {
+  console.log(`API from environment: ${API}`);
+
+  const response = await axios.get(`${API}/agents`);
+
+  if (response.status !== 200) {
+    throw Error("Error retrieving all test groups");
+  }
+
+  let tests = response.data;
+
+  tests.forEach(function(item) {
+    item.showDetail = false;
+  });
+  console.log('Returniong test groups')
+  return tests;
+};
+
 export const data = {
   getAllTestGroups,
   getTestGroup,
   updateTestCollection,
   deleteTestCollection,
   addTestGroup,
-  deleteTestGroup
+  deleteTestGroup,
+  getAllAgents
 };

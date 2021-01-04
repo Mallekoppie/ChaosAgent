@@ -4,6 +4,9 @@ import NotFound from "@/pages/NotFoundPage.vue";
 
 // Admin pages
 const Dashboard = () => import(/* webpackChunkName: "dashboard" */"@/pages/Dashboard.vue");
+const TestGroup = () => import(/* webpackChunkName: "dashboard" */"@/pages/TestGroups.vue");
+const Agents = () => import(/* webpackChunkName: "dashboard" */"@/pages/Agents.vue");
+const AddAgent = () => import(/* webpackChunkName: "dashboard" */"@/pages/AddAgent");
 const Profile = () => import(/* webpackChunkName: "common" */ "@/pages/Profile.vue");
 const Notifications = () => import(/* webpackChunkName: "common" */"@/pages/Notifications.vue");
 const Icons = () => import(/* webpackChunkName: "common" */ "@/pages/Icons.vue");
@@ -21,6 +24,21 @@ const routes = [
         path: "dashboard",
         name: "dashboard",
         component: Dashboard
+      },
+      {
+        path: "testgroups",
+        name: "testgroups",
+        component: TestGroup
+      },
+      {
+        path: "agents",
+        name: "agents",
+        component: Agents
+      },
+      {
+        path: "add-agent",
+        name: "add-agent",
+        component: AddAgent
       },
       {
         path: "profile",

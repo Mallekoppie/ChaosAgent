@@ -46,7 +46,7 @@
     props: {
       title: {
         type: String,
-        default: "Creative Tim"
+        default: "Chaos Generator"
       },
       backgroundColor: {
         type: String,

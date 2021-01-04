@@ -3,7 +3,7 @@ module mallekoppie/ChaosGenerator/ChaosMaster
 go 1.15
 
 require (
-	github.com/Mallekoppie/goslow v0.0.0-20201228142515-b6e8613055f8
+	github.com/Mallekoppie/goslow v0.0.0-20210104115045-314d0b81e961
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.2 // indirect
