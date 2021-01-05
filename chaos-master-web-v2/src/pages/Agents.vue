@@ -1,18 +1,18 @@
 <template>
-  <div class="row">
-    <div class="col">
-      <card type="tasks" :header-classes="{'text-right': isRTL}">
+      <card>
         <template slot="header">
-          <h6 class="title d-inline">Agents</h6>
-          <p class="card-category d-inline">These are the workers executing the tests</p>
-          <base-dropdown menu-on-right=""
-                         tag="div"
-                         title-classes="btn btn-link btn-icon"
-                         aria-label="Settings menu"
-                         :class="{'float-left': isRTL}">
-            <i slot="title" class="tim-icons icon-settings-gear-63"></i>
-            <a class="dropdown-item" href="#/add-agent">Add new Agent</a>
-          </base-dropdown>
+          <div class="row">
+            <h6 class="title d-inline col-md-1">Agents</h6>
+            <p class="card-category d-inline col-md-10">These are the workers executing the tests</p>
+            <base-dropdown menu-on-right=""
+                           tag="div"
+                           title-classes="btn btn-link btn-icon"
+                           aria-label="Settings menu" class="col-md-1 align-right">
+              <i slot="title" class="tim-icons icon-settings-gear-63"></i>
+              <a class="dropdown-item" href="#/add-agent">Add new Agent</a>
+            </base-dropdown>
+          </div>
+
         </template>
         <div class="table-full-width table-responsive">
           <base-table :data="agents"
@@ -22,7 +22,7 @@
                 <p class="title">{{row.host}}</p>
                 <p class="text-muted">Port: {{row.port}}</p>
                 <p class="text-muted">Metrics Port: {{row.metricsPort}}</p>
-                <p class="text-muted">Enabled: {{row.enabled}}</p>
+                <p class="text-muted">Enabled: <i class="tim-icons icon-check-2" v-if="row.enabled" /> <i class="tim-icons icon-alert-circle-exc" v-if="!row.enabled" /> </p>
                 <p class="text-muted">Status: {{row.status}}</p>
               </td>
               <td class="td-actions text-right">
@@ -34,13 +34,12 @@
           </base-table>
         </div>
       </card>
-    </div>
-  </div>
 </template>
 <script>
 import { data } from "@/shared/agentstore.js";
-import {BaseTable} from '@/components'
+import { BaseTable} from '@/components'
 import router from "@/router";
+
 
   export default {
     components: {
