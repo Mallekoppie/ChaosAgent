@@ -71,7 +71,7 @@ const uuid = require("uuid");
         },
       }
     },
-    async created() {
+    created() {
       if (this.agentInput.id !== "") {
         this.agent.id = this.agentInput.id;
         this.agent.host = this.agentInput.host;

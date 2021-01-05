@@ -26,7 +26,7 @@
                 <p class="text-muted">Status: {{row.status}}</p>
               </td>
               <td class="td-actions text-right">
-                <base-button type="link" aria-label="edit button">
+                <base-button type="link" aria-label="edit button" @click="updateAgent(row)">
                   <i class="tim-icons icon-pencil"></i>
                 </base-button>
               </td>
@@ -40,6 +40,7 @@
 <script>
 import { data } from "@/shared/agentstore.js";
 import {BaseTable} from '@/components'
+import router from "@/router";
 
   export default {
     components: {
@@ -59,42 +60,8 @@ import {BaseTable} from '@/components'
       async getAllAgents() {
         this.agents = await data.getAllAgents();
       },
-      validatePort(agent) {
-        let isNumber = !isNaN(agent.port);
-
-        if (isNumber == false) {
-          return isNumber;
-        }
-
-        let value = parseInt(agent.port);
-
-        if (value < 2000 || value > 65200) {
-          return false;
-        }
-
-        return true;
-      },
-      validateMetricsPort(agent) {
-        let isNumber = !isNaN(agent.metricsPort);
-
-        if (isNumber == false) {
-          return isNumber;
-        }
-
-        let value = parseInt(agent.metricsPort);
-
-        if (value < 2000 || value > 65200) {
-          return false;
-        }
-
-        return true;
-      },
-      validateHostname(agent) {
-        if (agent.host.length < 1) {
-          return false;
-        } else {
-          return true;
-        }
+      updateAgent(agent) {
+        router.push({name:'add-agent', params:{agentInput:agent}})
       }
     },
     mounted() {

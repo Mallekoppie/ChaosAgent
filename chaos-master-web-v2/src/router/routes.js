@@ -42,7 +42,8 @@ const routes = [
       {
         path: "add-agent",
         name: "add-agent",
-        component: AddAgent
+        component: AddAgent,
+        props: parseAgentProps
       },
       {
         path: "profile",
