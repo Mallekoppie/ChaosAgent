@@ -49,6 +49,20 @@ const addTestGroup = async function(testGroup) {
   }
 };
 
+const updateTestGroup = async function(testGroup) {
+  console.log("Executing test group update");
+  const response = await axios.put(`${API}/testgroups`, testGroup, {
+    headers: { "Content-Type": "application/json" }
+  });
+
+  if (response.status !== 201) {
+    throw Error(
+      `Updating of Test Group failed. ResponseCode: ${response.statusText}`
+    );
+  }
+};
+
+
 const deleteTestGroup = async function(id) {
   console.log("Executing delete test group");
   const response = await axios.delete(`${API}/testgroups/` + id);
@@ -90,5 +104,6 @@ export const data = {
   updateTestCollection,
   deleteTestCollection,
   addTestGroup,
-  deleteTestGroup
+  deleteTestGroup,
+  updateTestGroup
 };

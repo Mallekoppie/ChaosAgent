@@ -20,9 +20,17 @@
             <template slot-scope="{row}">
               <td>
                 <p class="title">{{row.host}}</p>
+              </td>
+              <td>
                 <p class="text-muted">Port: {{row.port}}</p>
+              </td>
+              <td>
                 <p class="text-muted">Metrics Port: {{row.metricsPort}}</p>
+              </td>
+              <td>
                 <p class="text-muted">Enabled: <i class="tim-icons icon-check-2" v-if="row.enabled" /> <i class="tim-icons icon-alert-circle-exc" v-if="!row.enabled" /> </p>
+              </td>
+              <td>
                 <p class="text-muted">Status: {{row.status}}</p>
               </td>
               <td class="td-actions text-right">

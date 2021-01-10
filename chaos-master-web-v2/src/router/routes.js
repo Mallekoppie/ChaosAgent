@@ -5,6 +5,7 @@ import NotFound from "@/pages/NotFoundPage.vue";
 // Admin pages
 const Dashboard = () => import(/* webpackChunkName: "dashboard" */"@/pages/Dashboard.vue");
 const TestGroup = () => import(/* webpackChunkName: "dashboard" */"@/pages/TestGroups.vue");
+const AddTestGroup = () => import(/* webpackChunkName: "dashboard" */"@/pages/AddTestGroup.vue");
 const Agents = () => import(/* webpackChunkName: "dashboard" */"@/pages/Agents.vue");
 const AddAgent = () => import(/* webpackChunkName: "dashboard" */"@/pages/AddAgent");
 const Profile = () => import(/* webpackChunkName: "common" */ "@/pages/Profile.vue");
@@ -16,6 +17,10 @@ const TableList = () => import(/* webpackChunkName: "common" */ "@/pages/TableLi
 
 const parseAgentProps = r => ({
   agentInput: r.params.agentInput
+});
+
+const parseTestGroupProps = r => ({
+  testgroupInput: r.params.testgroupInput
 });
 
 const routes = [
@@ -33,6 +38,12 @@ const routes = [
         path: "testgroups",
         name: "testgroups",
         component: TestGroup
+      },
+      {
+        path: "add-testgroup",
+        name: "add-testgroup",
+        component: AddTestGroup,
+        props: parseTestGroupProps
       },
       {
         path: "agents",
