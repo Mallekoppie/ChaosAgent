@@ -14,9 +14,9 @@ const getAllTestGroups = async function() {
   let tests = response.data;
 
   tests.forEach(function(item) {
-    item.showDetail = false;
+    item.deleteVisible = false;
   });
-  console.log('Returniong test groups')
+  console.log('Returning test groups')
   return tests;
 };
 
@@ -32,6 +32,19 @@ const getTestGroup = async function(id) {
   let group = response.data;
 
   group.showDetail = false;
+  console.log('Adding deleteVisible property to each test collection')
+  console.log(group);
+  try {
+    group.testCollections.forEach(function(item){
+      item.deleteVisible = false;
+    });
+  } catch (e) {
+    console.log('Error adding property')
+    console.log(e)
+  }
+
+
+  console.log(group);
 
   return group;
 };

@@ -7,7 +7,9 @@ const Dashboard = () => import(/* webpackChunkName: "dashboard" */"@/pages/Dashb
 const TestGroup = () => import(/* webpackChunkName: "dashboard" */"@/pages/TestGroups.vue");
 const AddTestGroup = () => import(/* webpackChunkName: "dashboard" */"@/pages/AddTestGroup.vue");
 const Agents = () => import(/* webpackChunkName: "dashboard" */"@/pages/Agents.vue");
-const AddAgent = () => import(/* webpackChunkName: "dashboard" */"@/pages/AddAgent");
+const AddAgent = () => import(/* webpackChunkName: "dashboard" */"@/pages/AddAgent.vue");
+const TestCollections = () => import(/* webpackChunkName: "dashboard" */"@/pages/TestCollenctions.vue");
+const EditTestCollection = () => import(/* webpackChunkName: "dashboard" */"@/pages/EditTestCollection.vue");
 const Profile = () => import(/* webpackChunkName: "common" */ "@/pages/Profile.vue");
 const Notifications = () => import(/* webpackChunkName: "common" */"@/pages/Notifications.vue");
 const Icons = () => import(/* webpackChunkName: "common" */ "@/pages/Icons.vue");
@@ -21,6 +23,15 @@ const parseAgentProps = r => ({
 
 const parseTestGroupProps = r => ({
   testgroupInput: r.params.testgroupInput
+});
+
+const parseTestCollectionsProps = r => ({
+  testGroupInput: r.params.testGroupInput
+});
+
+const parseEditTestCollectionProps = r => ({
+  testCollectionInput: r.params.testCollectionInput,
+  testGroupIdInput: r.params.testGroupIdInput
 });
 
 const routes = [
@@ -55,6 +66,18 @@ const routes = [
         name: "add-agent",
         component: AddAgent,
         props: parseAgentProps
+      },
+      {
+        path: "testcollections",
+        name: "testcollections",
+        component: TestCollections,
+        props: parseTestCollectionsProps
+      },
+      {
+        path: "edit-testcollection",
+        name: "edit-testcollection",
+        component: EditTestCollection,
+        props: parseEditTestCollectionProps
       },
       {
         path: "profile",
