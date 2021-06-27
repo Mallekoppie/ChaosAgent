@@ -33,3 +33,5 @@ random.json
 /ChaosMaster/database.db
 /ChaosMaster/database.db.lock
 /ChaosMaster/log.txt
+UI/.idea/*
+UI/node_modules/*
