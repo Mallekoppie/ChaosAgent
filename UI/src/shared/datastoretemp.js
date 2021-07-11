@@ -220,10 +220,20 @@ const createEmptyTest = function(){
     };
 };
 
+const createEmptyTestGroup = function(){
+    return {
+        id: "1",
+        name: "",
+        description: "",
+        testCollections: []
+    };
+}
+
 export const dataStore = {
     getAgents,
     getTestGroups,
     getTestDetail,
     getTestCollections,
-    createEmptyTest
+    createEmptyTest,
+    createEmptyTestGroup
 };

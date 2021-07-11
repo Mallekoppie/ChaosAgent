@@ -135,15 +135,12 @@
       </md-card-header>
       <md-card-content>
         <div class="md-layout md-alignment-center-right">
-          <md-button class="md-success">
+          <md-button class="md-success" @click="saveTestCollection">
             Save
           </md-button>
           <md-button class="md-danger">
             Cancel
           </md-button>
-        </div>
-        <div class="md-layout-item">
-
         </div>
       </md-card-content>
     </md-card>
@@ -209,6 +206,9 @@ export default {
     testDelete(test) {
       let index = this.testCollection.tests.findIndex(t => t.id == test.id);
       this.testCollection.tests.splice(index, 1);
+    },
+    saveTestCollection(){
+    //  TODO: Call API to Save
     }
   }
 }
