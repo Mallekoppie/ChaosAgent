@@ -203,11 +203,27 @@ const getTestDetail = function() {
 
 const getTestCollections = function(){
     return TestCollection;
-}
+};
+
+const createEmptyTest = function(){
+    return  {
+        id: 1,
+        name: "test name",
+        description:"some description of the test",
+        method: "GET",
+        url: "http://localhost:9000/bla",
+        body: "",
+        headers: [
+        ],
+        responseCode: 200,
+        responseBody: ""
+    };
+};
 
 export const dataStore = {
     getAgents,
     getTestGroups,
     getTestDetail,
-    getTestCollections
+    getTestCollections,
+    createEmptyTest
 };
