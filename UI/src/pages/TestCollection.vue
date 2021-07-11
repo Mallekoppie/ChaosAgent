@@ -25,16 +25,20 @@
             </md-field>
           </div>
           <div class="md-layout-item md-small-size-100 md-size-33">
-            <md-field class="select">
-              <label>Method</label>
-              <md-select v-model="test.method">
-                <md-option value="GET">GET</md-option>
-                <md-option value="PUT">PUT</md-option>
-                <md-option value="POST">POST</md-option>
-                <md-option value="PATCH">PATCH</md-option>
-                <md-option value="DELETE">DELETE</md-option>
-              </md-select>
-            </md-field>
+            <div class="md-layout md-gutter">
+              <div class="md-layout-item">
+                <md-field class="select md-layout md-alignment-center">
+                  <label>Method</label>
+                  <md-select  v-model="test.method" class="md-alignment-center">
+                    <md-option value="GET" class="md-list-item-content">GET</md-option>
+                    <md-option value="PUT" class="md-list-item-content">PUT</md-option>
+                    <md-option value="POST" class="md-list-item-content">POST</md-option>
+                    <md-option value="PATCH" class="md-list-item-content">PATCH</md-option>
+                    <md-option value="DELETE" class="md-list-item-content">DELETE</md-option>
+                  </md-select>
+                </md-field>
+              </div>
+            </div>
 
 
           </div>
@@ -207,8 +211,8 @@ export default {
       let index = this.testCollection.tests.findIndex(t => t.id == test.id);
       this.testCollection.tests.splice(index, 1);
     },
-    saveTestCollection(){
-    //  TODO: Call API to Save
+    saveTestCollection() {
+      //  TODO: Call API to Save
     }
   }
 }

@@ -9,7 +9,7 @@
           <div class="md-layout-item">
             <h3>Name</h3>
             {{ confirmDeleteName }}
-            <h4>Description</h4>
+            <h3>Description</h3>
             {{ confirmDeleteDescription }}
           </div>
 
@@ -57,32 +57,34 @@
     </div>
 
     <!-- Add New Test Group -->
-    <md-card v-if="addTestGroupVisible">
-      <md-card-header data-background-color="orange">
-        <label>New Test Group</label>
-      </md-card-header>
-      <md-card-content>
-        <div class="md-layout-item">
-          <md-field>
-            <label>Name</label>
-            <md-input type="text" v-model="newTestGroupName"></md-input>
-          </md-field>
-        </div>
-        <div class="md-layout-item">
-          <md-field>
-            <label>Description</label>
-            <md-input type="text" v-model="newTestGroupDescription"></md-input>
-          </md-field>
-        </div>
-        <div class="md-layout-item md-size-100 text-right">
-          <md-button class="md-raised md-success" @click="newTestGroupSave">Save</md-button>
-          <md-button class="md-raised md-danger" @click="addTestGroupVisible = false">Cancel</md-button>
-        </div>
-        <div class="md-layout-item md-size-100 text-right">
+    <transition name="fade" mode="out-in">
+      <md-card v-if="addTestGroupVisible" class="animation-transition-general">
+        <md-card-header data-background-color="orange">
+          <label>New Test Group</label>
+        </md-card-header>
+        <md-card-content>
+          <div class="md-layout-item">
+            <md-field>
+              <label>Name</label>
+              <md-input type="text" v-model="newTestGroupName"></md-input>
+            </md-field>
+          </div>
+          <div class="md-layout-item">
+            <md-field>
+              <label>Description</label>
+              <md-input type="text" v-model="newTestGroupDescription"></md-input>
+            </md-field>
+          </div>
+          <div class="md-layout-item md-size-100 text-right">
+            <md-button class="md-raised md-success" @click="newTestGroupSave">Save</md-button>
+            <md-button class="md-raised md-danger" @click="addTestGroupVisible = false">Cancel</md-button>
+          </div>
+          <div class="md-layout-item md-size-100 text-right">
 
-        </div>
-      </md-card-content>
-    </md-card>
+          </div>
+        </md-card-content>
+      </md-card>
+    </transition>
 
     <div class="md-layout md-alignment-center-right">
       <md-button class="md-primary dropdown-toggle" @click="addTestGroupVisible = true">
