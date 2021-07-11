@@ -78,42 +78,42 @@ const TestGroups = [
     {
         id: 1,
         name: "someTest",
-        description: "something that describes the group of test collections 1",
+        description: "something that describes the group of test collections",
         testCollections: TestCollection,
         showDetail: false
     },
     {
         id: 2,
-        name: "someTest 2",
-        description: "something that describes the group of test collections 2",
+        name: "someTest",
+        description: "something that describes the group of test collections",
         testCollections: TestCollection,
         showDetail: false
     },
     {
         id: 3,
-        name: "someTest 3",
-        description: "something that describes the group of test collections 3",
+        name: "someTest",
+        description: "something that describes the group of test collections",
         testCollections: TestCollection,
         showDetail: false
     },
     {
         id: 4,
-        name: "someTest 4",
-        description: "something that describes the group of test collections 4",
+        name: "someTest",
+        description: "something that describes the group of test collections",
         testCollections: TestCollection,
         showDetail: false
     },
     {
         id: 5,
         name: "someTest",
-        description: "something that describes the group of test collections 5",
+        description: "something that describes the group of test collections",
         testCollections: TestCollection,
         showDetail: false
     },
     {
         id: 6,
         name: "someTest",
-        description: "something that describes the group of test collections 5",
+        description: "something that describes the group of test collections",
         testCollections: TestCollection,
         showDetail: false
     }
@@ -131,6 +131,7 @@ const TestDetail = {
         {
             id: 1,
             name: "test 1",
+            description:"some description of the test",
             method: "GET",
             url: "http://localhost:9000/bla",
             body: "",
@@ -152,6 +153,7 @@ const TestDetail = {
         {
             id: 2,
             name: "test 2",
+            description:"some description of the test",
             method: "GET",
             url: "http://localhost:9000/bla",
             body: "",
@@ -173,6 +175,7 @@ const TestDetail = {
         {
             id: 3,
             name: "test 3",
+            description:"some description of the test",
             method: "GET",
             url: "http://localhost:9000/bla",
             body: "",
@@ -199,12 +202,12 @@ const getTestDetail = function() {
 };
 
 const getTestCollections = function(){
-    return TestCollection
+    return TestCollection;
 }
 
 export const dataStore = {
     getAgents,
     getTestGroups,
-    getTestCollections,
-    getTestDetail
+    getTestDetail,
+    getTestCollections
 };
